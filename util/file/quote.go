@@ -2,29 +2,31 @@ package file
 
 import (
 	"fmt"
+	"runtime"
+	"strings"
 )
 
-func LoadLastQuote(content string) (string, error) {
-	// 1. マークダウンから最後の引用部分（> で始まる行）を抽出
-	var lastQuote string
-	start := 0
-	for i, c := range content {
-		if c == '\n' {
-			line := string(content[start:i])
-			if len(line) > 0 && line[0] == '>' {
-				lastQuote = line[1:] // '>' の後ろの部分
-				if len(lastQuote) > 0 && lastQuote[0] == ' ' {
-					lastQuote = lastQuote[1:]
-				}
-			}
-			start = i + 1
-		}
+func getLineSeparator() string {
+	if runtime.GOOS == "windows" {
+		return "\r\n"
 	}
-	// ファイルの最後の行が改行で終わっていない場合の対応
-	if start < len(content) {
-		line := string(content[start:])
+	return "\n"
+}
+
+func LoadLastQuote(content string) (string, string, error) {
+	// 1. マークダウンから最後の引用部分（> で始まる行）を抽出
+	lineSep := getLineSeparator()
+	lines := strings.Split(content, lineSep)
+	var lastQuote string
+	var otherContents string
+
+	for _, line := range lines {
+		if !strings.HasPrefix(line, ">") {
+			otherContents += line + lineSep
+			continue
+		}
 		if len(line) > 0 && line[0] == '>' {
-			lastQuote = line[1:]
+			lastQuote = line[1:] // '>' の後ろの部分
 			if len(lastQuote) > 0 && lastQuote[0] == ' ' {
 				lastQuote = lastQuote[1:]
 			}
@@ -33,7 +35,7 @@ func LoadLastQuote(content string) (string, error) {
 
 	if lastQuote == "" {
 		fmt.Println("引用部分（> で始まる行）が見つかりませんでした。")
-		return "", fmt.Errorf("引用部分（> で始まる行）が見つかりませんでした。")
+		return "", "", fmt.Errorf("引用部分（> で始まる行）が見つかりませんでした。")
 	}
-	return lastQuote, nil
+	return lastQuote, otherContents, nil
 }

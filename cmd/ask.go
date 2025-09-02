@@ -4,14 +4,14 @@ Copyright © 2025 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"encoding/json"
+	"context"
 	"fmt"
-	"io"
-	"net/http"
 	"os"
-	"strings"
 
+	"github.com/koooyooo/mdai/util/cost"
 	"github.com/koooyooo/mdai/util/file"
+	"github.com/openai/openai-go"
+	"github.com/openai/openai-go/option"
 	"github.com/spf13/cobra"
 )
 
@@ -35,11 +35,8 @@ func ask(args []string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println(string(b))
-
-	// INSERT_YOUR_CODE
-
-	lastQuote, err := file.LoadLastQuote(string(b))
+	// 1. マークダウンファイルから最後の引用部分を抽出
+	lastQuote, otherContents, err := file.LoadLastQuote(string(b))
 	if err != nil {
 		return err
 	}
@@ -49,51 +46,32 @@ func ask(args []string) error {
 		return fmt.Errorf("環境変数 OPENAI_API_KEY が設定されていません")
 	}
 
-	// 3. OpenAI API へ問い合わせ
-	reqBody := fmt.Sprintf(`{
-		"model": "gpt-3.5-turbo",
-		"messages": [
-			{"role": "user", "content": "%s"}
-		]
-	}`, lastQuote)
+	// 3. OpenAI API へ問い合わせ（公式SDKを使用）
+	client := openai.NewClient(option.WithAPIKey(apiKey))
 
-	req, err := http.NewRequest("POST", "https://api.openai.com/v1/chat/completions",
-		strings.NewReader(reqBody))
+	message := fmt.Sprintf("Context: %s\n\nQuestion: %s", otherContents, lastQuote)
+
+	resp, err := client.Chat.Completions.New(context.Background(), openai.ChatCompletionNewParams{
+		Model: openai.ChatModelGPT4oMini,
+		Messages: []openai.ChatCompletionMessageParamUnion{
+			openai.SystemMessage("You are a helpful assistant. You are given a question and a context. You need to answer the question based on the context. You need to answer the question in the same language as the question."),
+			openai.UserMessage(message),
+		},
+	})
 	if err != nil {
-		return err
+		return fmt.Errorf("OpenAI API エラー: %v", err)
 	}
-	req.Header.Set("Authorization", "Bearer "+apiKey)
-	req.Header.Set("Content-Type", "application/json")
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != 200 {
-		body, _ := io.ReadAll(resp.Body)
-		return fmt.Errorf("OpenAI API error: %s", string(body))
-	}
-
-	type Choice struct {
-		Message struct {
-			Content string `json:"content"`
-		} `json:"message"`
-	}
-	type OpenAIResponse struct {
-		Choices []Choice `json:"choices"`
-	}
-	var openaiResp OpenAIResponse
-	decoder := json.NewDecoder(resp.Body)
-	if err := decoder.Decode(&openaiResp); err != nil {
-		return err
-	}
-	if len(openaiResp.Choices) == 0 {
+	if len(resp.Choices) == 0 {
 		return fmt.Errorf("OpenAI API から応答がありません")
 	}
-	answer := openaiResp.Choices[0].Message.Content
+	// GPT-4-1106-preview (gpt-4-1-mini) の料金を使用
+	// 2024年6月時点: 入力 1K tokens あたり $0.6, 出力 1K tokens あたり $2.4
+	costInfo, err := cost.CalculateCost(string(openai.ChatModelGPT4oMini), 0.6, 2.4, resp.Usage)
+	if err != nil {
+		return fmt.Errorf("コスト計算エラー: %v", err)
+	}
+	fmt.Println(costInfo)
+	answer := resp.Choices[0].Message.Content
 
 	// 4. マークダウンファイルの末尾に結果を追記
 	f, err := os.OpenFile(path, os.O_APPEND|os.O_WRONLY, 0644)
