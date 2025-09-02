@@ -9,7 +9,7 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/koooyooo/mdai/util/cost"
+	"github.com/koooyooo/mdai/models"
 	"github.com/koooyooo/mdai/util/file"
 	"github.com/openai/openai-go"
 	"github.com/openai/openai-go/option"
@@ -72,7 +72,7 @@ func ask(args []string, logger *slog.Logger) error {
 		return fmt.Errorf("no response from OpenAI API")
 	}
 
-	costInfo, err := cost.CalculateCost(string(openai.ChatModelGPT4oMini), 0.6, 2.4, resp.Usage)
+	costInfo, err := models.CalculateCostString("gpt-4o-mini", resp.Usage)
 	if err != nil {
 		return fmt.Errorf("cost calculation error: %v", err)
 	}
