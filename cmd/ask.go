@@ -6,7 +6,6 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"io"
 	"log/slog"
 	"os"
 
@@ -40,6 +39,9 @@ func ask(args []string, logger *slog.Logger) error {
 	path := ""
 	if len(args) != 0 {
 		path = args[0]
+	}
+	if path == "" {
+		return fmt.Errorf("file path is required")
 	}
 	content, err := loadContent(path)
 	if err != nil {
@@ -77,35 +79,23 @@ func ask(args []string, logger *slog.Logger) error {
 	logger.Info("cost information", "costInfo", costInfo)
 	answer := resp.Choices[0].Message.Content
 
-	if path != "" {
-		f, err := os.OpenFile(path, os.O_APPEND|os.O_WRONLY, 0644)
-		if err != nil {
-			return err
-		}
-		defer f.Close()
+	f, err := os.OpenFile(path, os.O_APPEND|os.O_WRONLY, 0644)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
 
-		appendText := fmt.Sprintf("\n\n%s\n", answer)
-		if _, err := f.WriteString(appendText); err != nil {
-			return err
-		}
-	} else {
-		fmt.Println(answer)
+	appendText := fmt.Sprintf("\n\n%s\n", answer)
+	if _, err := f.WriteString(appendText); err != nil {
+		return err
 	}
 	return nil
 }
 
 func loadContent(path string) (string, error) {
-	if path != "" {
-		b, err := os.ReadFile(path)
-		if err != nil {
-			return "", err
-		}
-		return string(b), nil
-	} else {
-		b, err := io.ReadAll(os.Stdin)
-		if err != nil {
-			return "", fmt.Errorf("error reading from standard input: %v", err)
-		}
-		return string(b), nil
+	b, err := os.ReadFile(path)
+	if err != nil {
+		return "", err
 	}
+	return string(b), nil
 }
