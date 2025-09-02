@@ -11,6 +11,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/koooyooo/mdai/util/file"
 	"github.com/spf13/cobra"
 )
 
@@ -38,38 +39,10 @@ func ask(args []string) error {
 
 	// INSERT_YOUR_CODE
 
-	// 1. マークダウンから最後の引用部分（> で始まる行）を抽出
-	var lastQuote string
-	lines := []byte(string(b))
-	start := 0
-	for i, c := range lines {
-		if c == '\n' {
-			line := string(lines[start:i])
-			if len(line) > 0 && line[0] == '>' {
-				lastQuote = line[1:] // '>' の後ろの部分
-				if len(lastQuote) > 0 && lastQuote[0] == ' ' {
-					lastQuote = lastQuote[1:]
-				}
-			}
-			start = i + 1
-		}
+	lastQuote, err := file.LoadLastQuote(string(b))
+	if err != nil {
+		return err
 	}
-	// ファイルの最後の行が改行で終わっていない場合の対応
-	if start < len(lines) {
-		line := string(lines[start:])
-		if len(line) > 0 && line[0] == '>' {
-			lastQuote = line[1:]
-			if len(lastQuote) > 0 && lastQuote[0] == ' ' {
-				lastQuote = lastQuote[1:]
-			}
-		}
-	}
-
-	if lastQuote == "" {
-		fmt.Println("引用部分（> で始まる行）が見つかりませんでした。")
-		return nil
-	}
-
 	// 2. OpenAI API キー取得
 	apiKey := os.Getenv("OPENAI_API_KEY")
 	if apiKey == "" {
