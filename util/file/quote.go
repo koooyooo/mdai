@@ -14,7 +14,6 @@ func getLineSeparator() string {
 }
 
 func LoadLastQuote(content string) (string, string, error) {
-	// 1. マークダウンから最後の引用部分（> で始まる行）を抽出
 	lineSep := getLineSeparator()
 	lines := strings.Split(content, lineSep)
 	var lastQuote string
@@ -34,8 +33,7 @@ func LoadLastQuote(content string) (string, string, error) {
 	}
 
 	if lastQuote == "" {
-		fmt.Println("引用部分（> で始まる行）が見つかりませんでした。")
-		return "", "", fmt.Errorf("引用部分（> で始まる行）が見つかりませんでした。")
+		return "", "", fmt.Errorf("no quote (line starting with >) found")
 	}
 	return lastQuote, otherContents, nil
 }
