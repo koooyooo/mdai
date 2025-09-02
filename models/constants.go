@@ -29,6 +29,19 @@ var (
 		Currency:             "USD",
 	}
 
+	GPT4Turbo = &AIModel{
+		ID:                   "gpt-4-turbo",
+		Name:                 "GPT-4 Turbo",
+		Provider:             ProviderOpenAI,
+		ModelType:            ModelTypeChat,
+		ContextSize:          128000,
+		MaxTokens:            4096,
+		PromptPricePer1M:     10.00, // $10.00 per 1M tokens
+		CompletionPricePer1M: 30.00, // $30.00 per 1M tokens
+		EmbeddingPricePer1M:  0.10,  // $0.10 per 1M tokens
+		Currency:             "USD",
+	}
+
 	GPT35Turbo = &AIModel{
 		ID:                   "gpt-3.5-turbo",
 		Name:                 "GPT-3.5-turbo",
@@ -81,4 +94,21 @@ var (
 		EmbeddingPricePer1M:  0.10,  // $0.10 per 1M tokens
 		Currency:             "USD",
 	}
+)
+
+// チャット補完の設定に関する定数
+const (
+	// デフォルトの最大トークン数
+	DefaultMaxTokens = 2000
+
+	// デフォルトの温度設定（創造性の調整）
+	DefaultTemperature = 0.7
+
+	// 高品質回答用の設定
+	HighQualityMaxTokens   = 4000
+	HighQualityTemperature = 0.5
+
+	// 創造的回答用の設定
+	CreativeMaxTokens   = 3000
+	CreativeTemperature = 0.9
 )

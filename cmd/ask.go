@@ -35,6 +35,17 @@ func init() {
 	rootCmd.AddCommand(askCmd)
 }
 
+const DefaultSystemMessage = `You are a helpful and detailed assistant. When answering questions based on the given context, please follow these guidelines:
+
+1. Answer in the same language as the question
+2. Make full use of the context information
+3. Provide specific and practical information
+4. Add examples and explanations when necessary
+5. Ensure answers are appropriately long and content-rich
+6. Provide insights that deepen the questioner's understanding
+7. Prefer rich markdown formatting
+`
+
 func ask(args []string, logger *slog.Logger) error {
 	path := ""
 	if len(args) != 0 {
@@ -56,14 +67,17 @@ func ask(args []string, logger *slog.Logger) error {
 		return fmt.Errorf("environment variable OPENAI_API_KEY is not set")
 	}
 
+	var modelID = openai.ChatModelGPT4oMini
 	client := openai.NewClient(option.WithAPIKey(apiKey))
 	message := fmt.Sprintf("Context: %s\n\nQuestion: %s", otherContents, lastQuote)
 	resp, err := client.Chat.Completions.New(context.Background(), openai.ChatCompletionNewParams{
-		Model: openai.ChatModelGPT4oMini,
+		Model: modelID,
 		Messages: []openai.ChatCompletionMessageParamUnion{
-			openai.SystemMessage("You are a helpful assistant. You are given a question and a context. You need to answer the question based on the context. You need to answer the question in the same language as the question."),
+			openai.SystemMessage(DefaultSystemMessage),
 			openai.UserMessage(message),
 		},
+		MaxTokens:   openai.Int(models.DefaultMaxTokens),
+		Temperature: openai.Float(models.DefaultTemperature),
 	})
 	if err != nil {
 		return fmt.Errorf("OpenAI API error: %v", err)
@@ -72,7 +86,7 @@ func ask(args []string, logger *slog.Logger) error {
 		return fmt.Errorf("no response from OpenAI API")
 	}
 
-	costInfo, err := models.CalculateCostString("gpt-4o-mini", resp.Usage)
+	costInfo, err := models.CalculateCostString(modelID, resp.Usage)
 	if err != nil {
 		return fmt.Errorf("cost calculation error: %v", err)
 	}
