@@ -23,9 +23,39 @@ Markdownファイルの内容をAIに質問し、回答を自動で追記するC
 ### 基本的な使用方法
 
 ```bash
+# 設定ファイルの初期化（初回のみ）
+mdai init
+
 # Markdownファイルの引用部分をAIに質問
 mdai answer path/to/your/file.md
+
+# Markdownファイルの内容を要約
+mdai summarize path/to/your/file.md
 ```
+
+### 設定ファイルのカスタマイズ
+
+mdaiは設定ファイルを使用して動作をカスタマイズできます。設定ファイルは `~/.mdai/config.yml` に配置されます。
+
+#### 設定ファイルの初期化
+
+```bash
+# 設定ファイルを初期化（初回セットアップ）
+mdai init
+```
+
+このコマンドは以下を実行します：
+1. `~/.mdai` ディレクトリを作成
+2. `config.sample.yml` を `~/.mdai/config.yml` にコピー
+3. 設定ファイルのパスを表示
+
+#### 設定項目
+
+- **デフォルト設定**: AIモデル、品質設定、ログレベル
+- **answerコマンド**: システムメッセージ、目標文字数
+- **summarizeコマンド**: システムメッセージ、目標文字数
+
+詳細な設定例は `config/config.sample.yml` を参照してください。
 
 ### 使用例
 
@@ -75,7 +105,14 @@ mdaiは自動的にAPI使用コストを計算し、ログに表示します。�
 mdai/
 ├── cmd/           # CLIコマンド
 │   ├── answer.go     # answerコマンドの実装
-│   └── root.go    # ルートコマンド
+│   ├── summarize.go  # summarizeコマンドの実装
+│   ├── init.go       # initコマンドの実装
+│   └── root.go       # ルートコマンド
+├── config/        # 設定ファイル
+│   └── config.go     # 設定構造体と読み込み処理
+├── config.sample.yml # サンプル設定ファイル
+├── controller/    # AI制御
+│   └── controller.go # OpenAI API制御
 ├── models/        # AIモデル関連
 │   ├── ai_model.go    # AIモデルの定義
 │   ├── constants.go    # モデル定数

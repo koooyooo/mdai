@@ -5,6 +5,7 @@ go 1.22.0
 require (
 	github.com/openai/openai-go v1.12.0
 	github.com/spf13/cobra v1.10.1
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (

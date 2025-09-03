@@ -8,6 +8,7 @@ import (
 	"log/slog"
 	"os"
 
+	"github.com/koooyooo/mdai/config"
 	"github.com/koooyooo/mdai/controller"
 	"github.com/koooyooo/mdai/util/file"
 	"github.com/openai/openai-go"
@@ -36,25 +37,51 @@ func init() {
 }
 
 func answer(args []string, logger *slog.Logger) error {
+	// 設定ファイルを読み込み
+	cfg, err := config.LoadConfig()
+	if err != nil {
+		logger.Warn("failed to load config, using defaults", "error", err)
+		// エラーが発生した場合はデフォルト設定を使用
+		cfg = config.GetDefaultConfig()
+	}
+
 	controller := controller.NewOpenAIController(os.Getenv("OPENAI_API_KEY"), logger)
 
 	if len(args) == 0 {
 		return fmt.Errorf("path is required")
 	}
 	path := args[0]
-	sysMsg := createSystemMessage()
+
+	// 設定ファイルからシステムメッセージを取得
+	sysMsg := cfg.Answer.SystemMessage
+
 	userMsg, err := createUserMessage(path)
 	if err != nil {
 		return fmt.Errorf("fail in creating user message: %v", err)
 	}
-	controller.Control(sysMsg, userMsg, func(completion *openai.ChatCompletion) error {
+
+	// 設定ファイルから品質設定を取得
+	maxTokens := cfg.Default.Quality.MaxTokens
+	temperature := cfg.Default.Quality.Temperature
+
+	// システムメッセージに文字数の指示を追加
+	if cfg.Answer.TargetChars > 0 {
+		sysMsg += fmt.Sprintf("\n\n**Answer Length Guidance**: Please provide an answer of approximately %d characters.", cfg.Answer.TargetChars)
+	}
+
+	// 設定値をログに出力
+	logger.Info("using configuration",
+		"maxTokens", maxTokens,
+		"temperature", temperature,
+		"targetChars", cfg.Answer.TargetChars)
+
+	controller.Control(sysMsg, userMsg, cfg.Default.Quality, func(completion *openai.ChatCompletion) error {
+		answer := completion.Choices[0].Message.Content
 		f, err := os.OpenFile(path, os.O_APPEND|os.O_WRONLY, 0644)
 		if err != nil {
 			return err
 		}
 		defer f.Close()
-
-		answer := completion.Choices[0].Message.Content
 		appendText := fmt.Sprintf("\n\n%s\n", answer)
 		if _, err := f.WriteString(appendText); err != nil {
 			return err
@@ -62,19 +89,6 @@ func answer(args []string, logger *slog.Logger) error {
 		return nil
 	})
 	return nil
-}
-
-func createSystemMessage() string {
-	return `You are a helpful and detailed assistant. When answering questions based on the given context, please follow these guidelines:
-
-1. Answer in the same language as the question
-2. Make full use of the context information
-3. Provide specific and practical information
-4. Add examples and explanations when necessary
-5. Ensure answers are appropriately long and content-rich
-6. Provide insights that deepen the questioner's understanding
-7. Prefer rich markdown formatting
-`
 }
 
 func createUserMessage(path string) (string, error) {

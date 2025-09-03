@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/koooyooo/mdai/config"
 	"github.com/koooyooo/mdai/controller"
 	"github.com/openai/openai-go"
 	"github.com/spf13/cobra"
@@ -64,10 +65,38 @@ func summarize(args []string, logger *slog.Logger) error {
 		return fmt.Errorf("fail in loading content: %v", err)
 	}
 
-	sysMsg := createSummarizeSystemMessage()
+	// 設定ファイルを読み込み
+	cfg, err := config.LoadConfig()
+	if err != nil {
+		logger.Warn("failed to load config, using defaults", "error", err)
+		// エラーが発生した場合はデフォルト設定を使用
+		cfg = config.GetDefaultConfig()
+	}
+
+	// 設定ファイルからシステムメッセージを取得
+	sysMsg := cfg.Summarize.SystemMessage
+	if sysMsg == "" {
+		sysMsg = createSummarizeSystemMessage()
+	}
+
 	userMsg := createSummarizeUserMessage(content)
 
-	controller.Control(sysMsg, userMsg, func(completion *openai.ChatCompletion) error {
+	// 設定ファイルから品質設定を取得
+	maxTokens := cfg.Default.Quality.MaxTokens
+	temperature := cfg.Default.Quality.Temperature
+
+	// システムメッセージに文字数の指示を追加
+	if cfg.Summarize.TargetChars > 0 {
+		sysMsg += fmt.Sprintf("\n\n**Summary Length Guidance**: Please provide a summary of approximately %d characters.", cfg.Summarize.TargetChars)
+	}
+
+	// 設定値をログに出力
+	logger.Info("using configuration",
+		"maxTokens", maxTokens,
+		"temperature", temperature,
+		"targetChars", cfg.Summarize.TargetChars)
+
+	controller.Control(sysMsg, userMsg, cfg.Default.Quality, func(completion *openai.ChatCompletion) error {
 		summary := completion.Choices[0].Message.Content
 
 		// 要約結果をファイルに保存
