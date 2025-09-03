@@ -16,65 +16,7 @@ Markdownファイルの内容をAIに質問し、回答を自動で追記するC
 - OpenAI APIキー
     - see: https://platform.openai.com/api-keys
 
-## 🛠️ インストール
-
-### 方法1: go installを使用（推奨）
-
-```bash
-go install github.com/koooyooo/mdai@latest
-```
-
-### 方法2: ソースからビルド
-
-#### 1. リポジトリのクローン
-
-```bash
-$ git clone https://github.com/koooyooo/mdai.git
-$ cd mdai
-```
-
-#### 2. 依存関係のインストール
-
-```bash
-$ go mod download
-```
-
-#### 3. ビルド
-
-```bash
-$ go build -o mdai
-```
-
-#### 4. 実行可能ファイルをPATHに追加（オプション）
-
-```bash
-# macOS/Linux
-$ sudo cp mdai /usr/local/bin/
-
-# Windows
-# mdai.exeを適切なディレクトリにコピー
-```
-
-## 🔑 セットアップ
-
-### OpenAI APIキーの設定
-
-環境変数にOpenAI APIキーを設定してください：
-
-```bash
-# macOS/Linux
-export OPENAI_API_KEY="your-api-key-here"
-
-# Windows
-set OPENAI_API_KEY=your-api-key-here
-```
-
-または、`.bashrc`や`.zshrc`に追加して永続化：
-
-```bash
-echo 'export OPENAI_API_KEY="your-api-key-here"' >> ~/.bashrc
-source ~/.bashrc
-```
+詳細なインストールとセットアップ手順は [INSTALL.md](INSTALL.md) を参照してください。
 
 ## 📖 使用方法
 
@@ -192,4 +134,9 @@ golangci-lint run
 - 設定ファイルによるカスタマイズ
 
 **注意**: このツールを使用する際は、OpenAI APIの利用規約と料金体系を確認してください。
+
+## 🔗 関連リンク
+
+- [INSTALL.md](INSTALL.md) - インストールとセットアップ手順
+- [LICENSE](LICENSE) - ライセンス情報
 
