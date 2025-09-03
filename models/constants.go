@@ -1,3 +1,6 @@
+/*
+Copyright © 2025 koooyooo
+*/
 package models
 
 // よく使用されるAIモデルの定義（価格情報を含む）
