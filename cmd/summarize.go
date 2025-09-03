@@ -74,11 +74,14 @@ func summarize(args []string, logger *slog.Logger) error {
 
 	// 設定ファイルからシステムメッセージを取得
 	sysMsg := cfg.Summarize.SystemMessage
-	if sysMsg == "" {
-		sysMsg = createSummarizeSystemMessage()
-	}
 
-	userMsg := createSummarizeUserMessage(content)
+	// 設定ファイルからユーザーメッセージを取得し、テンプレート処理を行う
+	userMsg, err := cfg.Summarize.UserMessage.Apply(map[string]string{
+		"Content": content,
+	})
+	if err != nil {
+		return fmt.Errorf("fail in creating user message: %v", err)
+	}
 
 	// 設定ファイルから品質設定を取得
 	maxTokens := cfg.Default.Quality.MaxTokens
@@ -115,30 +118,6 @@ func generateOutputPath(inputPath string) string {
 	filename := filepath.Base(inputPath)
 	nameWithoutExt := strings.TrimSuffix(filename, filepath.Ext(filename))
 	return filepath.Join(dir, nameWithoutExt+"_sum.md")
-}
-
-func createSummarizeSystemMessage() string {
-	return `You are a helpful and detailed assistant specialized in summarizing markdown documents. When summarizing content, please follow these guidelines:
-
-1. Provide a comprehensive yet concise summary of the main content
-2. Maintain the key points and important information
-3. Use clear and organized structure with markdown formatting
-4. Include main headings and subheadings when relevant
-5. Preserve important details, examples, and references
-6. Make the summary easy to read and understand
-7. Use appropriate markdown elements (headers, lists, emphasis, etc.)
-8. Keep the summary appropriately long - not too brief, not too verbose
-9. Focus on the most valuable and actionable information
-10. Maintain the original tone and style when appropriate
-`
-}
-
-func createSummarizeUserMessage(content string) string {
-	return fmt.Sprintf(`Please provide a comprehensive summary of the following markdown content:
-
-%s
-
-Please create a well-structured summary that captures the essence and key points of this content.`, content)
 }
 
 func saveSummary(outputPath, summary, originalPath string) error {

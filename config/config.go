@@ -1,9 +1,11 @@
 package config
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"path/filepath"
+	"text/template"
 
 	"gopkg.in/yaml.v3"
 )
@@ -31,19 +33,48 @@ type QualityConfig struct {
 
 // AnswerConfig はanswerコマンドの設定を表します
 type AnswerConfig struct {
-	SystemMessage string `yaml:"system_message"`
-	TargetLength  int    `yaml:"target_length"`
+	SystemMessage string              `yaml:"system_message"`
+	UserMessage   UserMessageTemplate `yaml:"user_message"`
+	TargetLength  int                 `yaml:"target_length"`
+}
+
+// UserMessageTemplate はユーザーメッセージのテンプレートを表します
+type UserMessageTemplate struct {
+	Template string
+}
+
+// Apply はテンプレートに変数を適用してメッセージを生成します
+func (t *UserMessageTemplate) Apply(vars map[string]string) (string, error) {
+	if t.Template == "" {
+		return "", fmt.Errorf("template is empty")
+	}
+
+	// テンプレートを作成
+	tmpl, err := template.New("userMessage").Parse(t.Template)
+	if err != nil {
+		return "", fmt.Errorf("failed to parse template: %v", err)
+	}
+
+	// テンプレートを実行
+	var buf bytes.Buffer
+	if err := tmpl.Execute(&buf, vars); err != nil {
+		return "", fmt.Errorf("failed to execute template: %v", err)
+	}
+
+	return buf.String(), nil
 }
 
 // SummarizeConfig はsummarizeコマンドの設定を表します
 type SummarizeConfig struct {
-	SystemMessage string `yaml:"system_message"`
-	TargetLength  int    `yaml:"target_length"`
+	SystemMessage string              `yaml:"system_message"`
+	UserMessage   UserMessageTemplate `yaml:"user_message"`
+	TargetLength  int                 `yaml:"target_length"`
 }
 
 // TranslateConfig はtranslateコマンドの設定を表します
 type TranslateConfig struct {
-	SystemMessage string `yaml:"system_message"`
+	SystemMessage string              `yaml:"system_message"`
+	UserMessage   UserMessageTemplate `yaml:"user_message"`
 }
 
 // LoadConfig は設定ファイルを読み込みます
@@ -93,6 +124,11 @@ func GetDefaultConfig() *Config {
 4. Ensure answers are appropriately long and content-rich
 5. Provide insights that deepen the questioner's understanding
 6. Prefer rich markdown formatting`,
+			UserMessage: UserMessageTemplate{
+				Template: `Context: {{.Context}}
+
+Question: {{.Question}}`,
+			},
 			TargetLength: 500,
 		},
 		Summarize: SummarizeConfig{
@@ -108,6 +144,13 @@ func GetDefaultConfig() *Config {
 8. Keep the summary appropriately long - not too brief, not too verbose
 9. Focus on the most valuable and actionable information
 10. Maintain the original tone and style when appropriate`,
+			UserMessage: UserMessageTemplate{
+				Template: `Please provide a comprehensive summary of the following markdown content:
+
+{{.Content}}
+
+Please create a well-structured summary that captures the essence and key points of this content.`,
+			},
 			TargetLength: 800,
 		},
 		Translate: TranslateConfig{
@@ -123,6 +166,13 @@ func GetDefaultConfig() *Config {
 8. Keep the same level of detail and information as the original
 9. Use appropriate language conventions for the target language
 10. Ensure the translation sounds natural to native speakers of the target language`,
+			UserMessage: UserMessageTemplate{
+				Template: `Please translate the following content to {{.TargetLanguage}}:
+
+{{.Content}}
+
+Please maintain the original markdown formatting and structure while ensuring the translation is accurate and natural.`,
+			},
 		},
 	}
 }
