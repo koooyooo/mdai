@@ -10,7 +10,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// Config は設定ファイルの構造を表します
+// Config represents the structure of the configuration file
 type Config struct {
 	Default   DefaultConfig   `yaml:"default"`
 	Answer    AnswerConfig    `yaml:"answer"`
@@ -18,44 +18,44 @@ type Config struct {
 	Translate TranslateConfig `yaml:"translate"`
 }
 
-// DefaultConfig はデフォルト設定を表します
+// DefaultConfig represents the default configuration
 type DefaultConfig struct {
 	Model    string        `yaml:"model"`
 	Quality  QualityConfig `yaml:"quality"`
 	LogLevel string        `yaml:"log_level"`
 }
 
-// QualityConfig は品質設定を表します
+// QualityConfig represents quality settings
 type QualityConfig struct {
 	MaxTokens   int     `yaml:"max_tokens"`
 	Temperature float64 `yaml:"temperature"`
 }
 
-// AnswerConfig はanswerコマンドの設定を表します
+// AnswerConfig represents the configuration for the answer command
 type AnswerConfig struct {
 	SystemMessage string              `yaml:"system_message"`
 	UserMessage   UserMessageTemplate `yaml:"user_message"`
 	TargetLength  int                 `yaml:"target_length"`
 }
 
-// UserMessageTemplate はユーザーメッセージのテンプレートを表します
+// UserMessageTemplate represents the template for user messages
 type UserMessageTemplate struct {
 	Template string
 }
 
-// Apply はテンプレートに変数を適用してメッセージを生成します
+// Apply generates a message by applying variables to the template
 func (t *UserMessageTemplate) Apply(vars map[string]string) (string, error) {
 	if t.Template == "" {
 		return "", fmt.Errorf("template is empty")
 	}
 
-	// テンプレートを作成
+	// Create template
 	tmpl, err := template.New("userMessage").Parse(t.Template)
 	if err != nil {
 		return "", fmt.Errorf("failed to parse template: %v", err)
 	}
 
-	// テンプレートを実行
+	// Execute template
 	var buf bytes.Buffer
 	if err := tmpl.Execute(&buf, vars); err != nil {
 		return "", fmt.Errorf("failed to execute template: %v", err)
@@ -64,20 +64,20 @@ func (t *UserMessageTemplate) Apply(vars map[string]string) (string, error) {
 	return buf.String(), nil
 }
 
-// SummarizeConfig はsummarizeコマンドの設定を表します
+// SummarizeConfig represents the configuration for the summarize command
 type SummarizeConfig struct {
 	SystemMessage string              `yaml:"system_message"`
 	UserMessage   UserMessageTemplate `yaml:"user_message"`
 	TargetLength  int                 `yaml:"target_length"`
 }
 
-// TranslateConfig はtranslateコマンドの設定を表します
+// TranslateConfig represents the configuration for the translate command
 type TranslateConfig struct {
 	SystemMessage string              `yaml:"system_message"`
 	UserMessage   UserMessageTemplate `yaml:"user_message"`
 }
 
-// LoadConfig は設定ファイルを読み込みます
+// LoadConfig loads the configuration file
 func LoadConfig() (*Config, error) {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
@@ -86,7 +86,7 @@ func LoadConfig() (*Config, error) {
 
 	configPath := filepath.Join(homeDir, ".mdai", "config.yml")
 
-	// 設定ファイルが存在しない場合はデフォルト設定を返す
+	// Return default configuration if config file doesn't exist
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
 		return GetDefaultConfig(), nil
 	}
@@ -104,7 +104,7 @@ func LoadConfig() (*Config, error) {
 	return &config, nil
 }
 
-// GetDefaultConfig はデフォルト設定を返します
+// GetDefaultConfig returns the default configuration
 func GetDefaultConfig() *Config {
 	return &Config{
 		Default: DefaultConfig{
@@ -177,7 +177,7 @@ Please maintain the original markdown formatting and structure while ensuring th
 	}
 }
 
-// GetLogLevel はログレベルを取得します
+// GetLogLevel gets the log level
 func (c *Config) GetLogLevel() string {
 	if c.Default.LogLevel == "" {
 		return "info"
@@ -185,7 +185,7 @@ func (c *Config) GetLogLevel() string {
 	return c.Default.LogLevel
 }
 
-// GetModel はデフォルトモデルを取得します
+// GetModel gets the default model
 func (c *Config) GetModel() string {
 	if c.Default.Model == "" {
 		return "gpt-4o-mini"
@@ -193,7 +193,7 @@ func (c *Config) GetModel() string {
 	return c.Default.Model
 }
 
-// GetMaxTokens はデフォルトの最大トークン数を取得します
+// GetMaxTokens gets the default maximum token count
 func (c *Config) GetMaxTokens() int {
 	if c.Default.Quality.MaxTokens == 0 {
 		return 2000
@@ -201,7 +201,7 @@ func (c *Config) GetMaxTokens() int {
 	return c.Default.Quality.MaxTokens
 }
 
-// GetTemperature はデフォルトの温度設定を取得します
+// GetTemperature gets the default temperature setting
 func (c *Config) GetTemperature() float64 {
 	if c.Default.Quality.Temperature == 0 {
 		return 0.7

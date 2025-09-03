@@ -3,7 +3,7 @@ Copyright © 2025 koooyooo
 */
 package models
 
-// よく使用されるAIモデルの定義（価格情報を含む）
+// Definition of commonly used AI models (including pricing information)
 var (
 	// OpenAI Models
 	GPT4oMini = &AIModel{
@@ -99,19 +99,19 @@ var (
 	}
 )
 
-// チャット補完の設定に関する定数
+// Constants for chat completion configuration
 const (
-	// デフォルトの最大トークン数
+	// Default maximum token count
 	DefaultMaxTokens = 2000
 
-	// デフォルトの温度設定（創造性の調整）
+	// Default temperature setting (creativity adjustment)
 	DefaultTemperature = 0.7
 
-	// 高品質回答用の設定
+	// Settings for high quality answers
 	HighQualityMaxTokens   = 4000
 	HighQualityTemperature = 0.5
 
-	// 創造的回答用の設定
+	// Settings for creative answers
 	CreativeMaxTokens   = 3000
 	CreativeTemperature = 0.9
 )

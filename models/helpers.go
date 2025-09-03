@@ -9,7 +9,7 @@ import (
 	"github.com/openai/openai-go"
 )
 
-// GetModelByID はモデルIDからモデル情報を取得します
+// GetModelByID retrieves model information from model ID
 func GetModelByID(modelID string) (*AIModel, error) {
 	switch modelID {
 	case "gpt-4o-mini":
@@ -29,7 +29,7 @@ func GetModelByID(modelID string) (*AIModel, error) {
 	}
 }
 
-// CalculateCost は指定されたモデルのトークン使用量に基づいてコストを計算します
+// CalculateCost calculates cost based on token usage for the specified model
 func CalculateCost(modelID string, promptTokens, completionTokens int) (float64, error) {
 	model, err := GetModelByID(modelID)
 	if err != nil {
@@ -38,7 +38,7 @@ func CalculateCost(modelID string, promptTokens, completionTokens int) (float64,
 	return model.CalculateTotalCost(promptTokens, completionTokens), nil
 }
 
-// CalculateCostString は既存のutil/costパッケージと互換性のある形式でコストを返します
+// CalculateCostString returns cost in a format compatible with existing util/cost package
 func CalculateCostString(modelID string, usage openai.CompletionUsage) (string, error) {
 	model, err := GetModelByID(modelID)
 	if err != nil {
@@ -49,10 +49,10 @@ func CalculateCostString(modelID string, usage openai.CompletionUsage) (string, 
 	completionCost := model.CalculateCompletionCost(int(usage.CompletionTokens))
 	totalCost := promptCost + completionCost
 
-	return fmt.Sprintf("[%s] $%.5f (入力: $%.5f, 出力: $%.5f)", modelID, totalCost, promptCost, completionCost), nil
+	return fmt.Sprintf("[%s] $%.5f (Input: $%.5f, Output: $%.5f)", modelID, totalCost, promptCost, completionCost), nil
 }
 
-// ListModels は利用可能なモデルの一覧を返します
+// ListModels returns a list of available models
 func ListModels() []*AIModel {
 	return []*AIModel{
 		GPT4oMini,
