@@ -83,14 +83,18 @@ func translate(args []string, logger *slog.Logger) error {
 
 	// 設定ファイルからシステムメッセージを取得
 	sysMsg := cfg.Translate.SystemMessage
-	if sysMsg == "" {
-		sysMsg = createTranslateSystemMessage()
-	}
 
 	// 言語固有の指示を追加
 	sysMsg += fmt.Sprintf("\n\n**Target Language**: %s", getLanguageName(language))
 
-	userMsg := createTranslateUserMessage(content, language)
+	// 設定ファイルからユーザーメッセージを取得し、テンプレート処理を行う
+	userMsg, err := cfg.Translate.UserMessage.Apply(map[string]string{
+		"Content":        content,
+		"TargetLanguage": getLanguageName(language),
+	})
+	if err != nil {
+		return fmt.Errorf("fail in creating user message: %v", err)
+	}
 
 	// 設定ファイルから品質設定を取得
 	maxTokens := cfg.Default.Quality.MaxTokens
@@ -169,29 +173,6 @@ func getLanguageName(languageCode string) string {
 		return name
 	}
 	return languageCode
-}
-
-func createTranslateSystemMessage() string {
-	return `You are a professional translator specialized in translating markdown documents. When translating content, please follow these guidelines:
-
-1. Translate the content to the specified target language accurately and naturally
-2. Maintain the original markdown formatting and structure
-3. Preserve all headings, lists, code blocks, and formatting elements
-4. Keep the same tone and style as the original document
-5. Ensure technical terms are translated appropriately for the target language
-6. Maintain the document's readability and flow in the target language
-7. Preserve any links, references, or citations
-8. Keep the same level of detail and information as the original
-9. Use appropriate language conventions for the target language
-10. Ensure the translation sounds natural to native speakers of the target language`
-}
-
-func createTranslateUserMessage(content, language string) string {
-	return fmt.Sprintf(`Please translate the following markdown content to %s:
-
-%s
-
-Please maintain all markdown formatting, structure, and ensure the translation is natural and accurate in the target language.`, getLanguageName(language), content)
 }
 
 func saveTranslation(outputPath, translatedContent, originalPath, language string) error {

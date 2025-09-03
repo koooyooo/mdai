@@ -30,6 +30,13 @@ answer:
     6. Provide insights that deepen the questioner's understanding
     7. Prefer rich markdown formatting
   
+  # ユーザーメッセージ（テンプレート）
+  user_message:
+    template: |
+      Context: {{.Context}}
+
+      Question: {{.Question}}
+  
   # 目標文字数
   target_length: 500
 
@@ -50,6 +57,15 @@ summarize:
     9. Focus on the most valuable and actionable information
     10. Maintain the original tone and style when appropriate
   
+  # ユーザーメッセージ（テンプレート）
+  user_message:
+    template: |
+      Please provide a comprehensive summary of the following markdown content:
+
+      {{.Content}}
+
+      Please create a well-structured summary that captures the essence and key points of this content.
+  
   # 目標文字数
   target_length: 800
 
@@ -69,3 +85,12 @@ translate:
     8. Keep the same level of detail and information as the original
     9. Use appropriate language conventions for the target language
     10. Ensure the translation sounds natural to native speakers of the target language
+  
+  # ユーザーメッセージ（テンプレート）
+  user_message:
+    template: |
+      Please translate the following content to {{.TargetLanguage}}:
+
+      {{.Content}}
+
+      Please maintain the original markdown formatting and structure while ensuring the translation is accurate and natural.

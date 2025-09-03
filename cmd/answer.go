@@ -55,7 +55,23 @@ func answer(args []string, logger *slog.Logger) error {
 	// 設定ファイルからシステムメッセージを取得
 	sysMsg := cfg.Answer.SystemMessage
 
-	userMsg, err := createUserMessage(path)
+	// ファイル内容を読み込み
+	content, err := loadContent(path)
+	if err != nil {
+		return fmt.Errorf("fail in loading content: %v", err)
+	}
+
+	// 最後の引用とその他の内容を取得
+	lastQuote, otherContents, err := file.LoadLastQuote(content)
+	if err != nil {
+		return fmt.Errorf("fail in loading last quote: %v", err)
+	}
+
+	// 設定ファイルからユーザーメッセージを取得し、テンプレート処理を行う
+	userMsg, err := cfg.Answer.UserMessage.Apply(map[string]string{
+		"Question": lastQuote,
+		"Context":  otherContents,
+	})
 	if err != nil {
 		return fmt.Errorf("fail in creating user message: %v", err)
 	}
@@ -89,19 +105,6 @@ func answer(args []string, logger *slog.Logger) error {
 		return nil
 	})
 	return nil
-}
-
-func createUserMessage(path string) (string, error) {
-	content, err := loadContent(path)
-	if err != nil {
-		return "", fmt.Errorf("fail in loading content: %v", err)
-	}
-	lastQuote, otherContents, err := file.LoadLastQuote(content)
-	if err != nil {
-		return "", err
-	}
-	userMsg := fmt.Sprintf("Context: %s\n\nQuestion: %s", otherContents, lastQuote)
-	return userMsg, nil
 }
 
 func loadContent(path string) (string, error) {
