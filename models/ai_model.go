@@ -1,3 +1,6 @@
+/*
+Copyright © 2025 koooyooo
+*/
 package models
 
 // ModelType はAIモデルのタイプを表す定数
