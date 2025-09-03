@@ -74,6 +74,7 @@ func createSystemMessage() string {
 7. Prefer rich markdown formatting
 `
 }
+
 func createUserMessage(path string) (string, error) {
 	content, err := loadContent(path)
 	if err != nil {
