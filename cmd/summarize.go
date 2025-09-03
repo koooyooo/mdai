@@ -9,7 +9,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/koooyooo/mdai/config"
 	"github.com/koooyooo/mdai/controller"
@@ -86,15 +85,15 @@ func summarize(args []string, logger *slog.Logger) error {
 	temperature := cfg.Default.Quality.Temperature
 
 	// システムメッセージに文字数の指示を追加
-	if cfg.Summarize.TargetChars > 0 {
-		sysMsg += fmt.Sprintf("\n\n**Summary Length Guidance**: Please provide a summary of approximately %d characters.", cfg.Summarize.TargetChars)
+	if cfg.Summarize.TargetLength > 0 {
+		sysMsg += fmt.Sprintf("\n\n**Summary Length Guidance**: Please provide a summary of approximately %d characters.", cfg.Summarize.TargetLength)
 	}
 
 	// 設定値をログに出力
 	logger.Info("using configuration",
 		"maxTokens", maxTokens,
 		"temperature", temperature,
-		"targetChars", cfg.Summarize.TargetChars)
+		"targetLength", cfg.Summarize.TargetLength)
 
 	controller.Control(sysMsg, userMsg, cfg.Default.Quality, func(completion *openai.ChatCompletion) error {
 		summary := completion.Choices[0].Message.Content
@@ -143,15 +142,6 @@ Please create a well-structured summary that captures the essence and key points
 }
 
 func saveSummary(outputPath, summary, originalPath string) error {
-	// 要約ファイルのヘッダーを作成
-	header := fmt.Sprintf(`# Summary of: %s
-
-*Generated on: %s*
-
----
-
-`, filepath.Base(originalPath), getCurrentTimestamp())
-
 	// ファイルに書き込み
 	f, err := os.Create(outputPath)
 	if err != nil {
@@ -159,14 +149,10 @@ func saveSummary(outputPath, summary, originalPath string) error {
 	}
 	defer f.Close()
 
-	// ヘッダーと要約内容を書き込み
-	if _, err := f.WriteString(header + summary); err != nil {
+	// 要約内容を直接書き込み
+	if _, err := f.WriteString(summary); err != nil {
 		return err
 	}
 
 	return nil
-}
-
-func getCurrentTimestamp() string {
-	return time.Now().Format("2006-01-02 15:04:05")
 }

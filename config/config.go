@@ -13,6 +13,7 @@ type Config struct {
 	Default   DefaultConfig   `yaml:"default"`
 	Answer    AnswerConfig    `yaml:"answer"`
 	Summarize SummarizeConfig `yaml:"summarize"`
+	Translate TranslateConfig `yaml:"translate"`
 }
 
 // DefaultConfig はデフォルト設定を表します
@@ -31,13 +32,18 @@ type QualityConfig struct {
 // AnswerConfig はanswerコマンドの設定を表します
 type AnswerConfig struct {
 	SystemMessage string `yaml:"system_message"`
-	TargetChars   int    `yaml:"target_chars"`
+	TargetLength  int    `yaml:"target_length"`
 }
 
 // SummarizeConfig はsummarizeコマンドの設定を表します
 type SummarizeConfig struct {
 	SystemMessage string `yaml:"system_message"`
-	TargetChars   int    `yaml:"target_chars"`
+	TargetLength  int    `yaml:"target_length"`
+}
+
+// TranslateConfig はtranslateコマンドの設定を表します
+type TranslateConfig struct {
+	SystemMessage string `yaml:"system_message"`
 }
 
 // LoadConfig は設定ファイルを読み込みます
@@ -83,12 +89,11 @@ func GetDefaultConfig() *Config {
 
 1. Answer in the same language as the question
 2. Make full use of the context information
-3. Provide specific and practical information
-4. Add examples and explanations when necessary
-5. Ensure answers are appropriately long and content-rich
-6. Provide insights that deepen the questioner's understanding
-7. Prefer rich markdown formatting`,
-			TargetChars: 500,
+3. Add examples and explanations when necessary
+4. Ensure answers are appropriately long and content-rich
+5. Provide insights that deepen the questioner's understanding
+6. Prefer rich markdown formatting`,
+			TargetLength: 500,
 		},
 		Summarize: SummarizeConfig{
 			SystemMessage: `You are a helpful and detailed assistant specialized in summarizing markdown documents. When summarizing content, please follow these guidelines:
@@ -103,7 +108,21 @@ func GetDefaultConfig() *Config {
 8. Keep the summary appropriately long - not too brief, not too verbose
 9. Focus on the most valuable and actionable information
 10. Maintain the original tone and style when appropriate`,
-			TargetChars: 800,
+			TargetLength: 800,
+		},
+		Translate: TranslateConfig{
+			SystemMessage: `You are a professional translator specialized in translating markdown documents. When translating content, please follow these guidelines:
+
+1. Translate the content to the specified target language accurately and naturally
+2. Maintain the original markdown formatting and structure
+3. Preserve all headings, lists, code blocks, and formatting elements
+4. Keep the same tone and style as the original document
+5. Ensure technical terms are translated appropriately for the target language
+6. Maintain the document's readability and flow in the target language
+7. Preserve any links, references, or citations
+8. Keep the same level of detail and information as the original
+9. Use appropriate language conventions for the target language
+10. Ensure the translation sounds natural to native speakers of the target language`,
 		},
 	}
 }

@@ -31,7 +31,7 @@ answer:
     7. Prefer rich markdown formatting
   
   # 目標文字数
-  target_chars: 500
+  target_length: 500
 
 # summarizeコマンドの設定
 summarize:
@@ -51,4 +51,21 @@ summarize:
     10. Maintain the original tone and style when appropriate
   
   # 目標文字数
-  target_chars: 800
+  target_length: 800
+
+# translateコマンドの設定
+translate:
+  # システムメッセージ
+  system_message: |
+    You are a professional translator specialized in translating markdown documents. When translating content, please follow these guidelines:
+
+    1. Translate the content to the specified target language accurately and naturally
+    2. Maintain the original markdown formatting and structure
+    3. Preserve all headings, lists, code blocks, and formatting elements
+    4. Keep the same tone and style as the original document
+    5. Ensure technical terms are translated appropriately for the target language
+    6. Maintain the document's readability and flow in the target language
+    7. Preserve any links, references, or citations
+    8. Keep the same level of detail and information as the original
+    9. Use appropriate language conventions for the target language
+    10. Ensure the translation sounds natural to native speakers of the target language
