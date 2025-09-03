@@ -49,45 +49,45 @@ func translate(args []string, logger *slog.Logger) error {
 	path := args[0]
 	language := args[1]
 
-	// ファイルの存在確認
+	// Check if file exists
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		return fmt.Errorf("file not found: %s", path)
 	}
 
-	// ファイル拡張子の確認
+	// Check file extension
 	if !strings.HasSuffix(strings.ToLower(path), ".md") {
 		return fmt.Errorf("file must have .md extension: %s", path)
 	}
 
-	// 言語コードの検証
+	// Validate language code
 	if !isValidLanguageCode(language) {
 		return fmt.Errorf("invalid language code: %s. Please use standard language codes like 'en', 'ja', 'zh', etc.", language)
 	}
 
-	// 出力ファイル名の生成
+	// Generate output filename
 	outputPath := generateTranslateOutputPath(path, language)
 
-	// ファイル内容の読み込み
+	// Load file content
 	content, err := loadContent(path)
 	if err != nil {
 		return fmt.Errorf("fail in loading content: %v", err)
 	}
 
-	// 設定ファイルを読み込み
+	// Load configuration file
 	cfg, err := config.LoadConfig()
 	if err != nil {
 		logger.Warn("failed to load config, using defaults", "error", err)
-		// エラーが発生した場合はデフォルト設定を使用
+		// Use default configuration if error occurs
 		cfg = config.GetDefaultConfig()
 	}
 
-	// 設定ファイルからシステムメッセージを取得
+	// Get system message from configuration
 	sysMsg := cfg.Translate.SystemMessage
 
-	// 言語固有の指示を追加
+	// Add language-specific instruction
 	sysMsg += fmt.Sprintf("\n\n**Target Language**: %s", getLanguageName(language))
 
-	// 設定ファイルからユーザーメッセージを取得し、テンプレート処理を行う
+	// Get user message from configuration and apply template processing
 	userMsg, err := cfg.Translate.UserMessage.Apply(map[string]string{
 		"Content":        content,
 		"TargetLanguage": getLanguageName(language),
@@ -96,11 +96,11 @@ func translate(args []string, logger *slog.Logger) error {
 		return fmt.Errorf("fail in creating user message: %v", err)
 	}
 
-	// 設定ファイルから品質設定を取得
+	// Get quality settings from configuration
 	maxTokens := cfg.Default.Quality.MaxTokens
 	temperature := cfg.Default.Quality.Temperature
 
-	// 設定値をログに出力
+	// Log configuration values
 	logger.Info("using configuration",
 		"maxTokens", maxTokens,
 		"temperature", temperature,
@@ -109,7 +109,7 @@ func translate(args []string, logger *slog.Logger) error {
 	controller.Control(sysMsg, userMsg, cfg.Default.Quality, func(completion *openai.ChatCompletion) error {
 		translatedContent := completion.Choices[0].Message.Content
 
-		// 翻訳結果をファイルに保存
+		// Save translation result to file
 		if err := saveTranslation(outputPath, translatedContent, path, language); err != nil {
 			return fmt.Errorf("fail in saving translation: %v", err)
 		}
@@ -129,7 +129,7 @@ func generateTranslateOutputPath(inputPath, language string) string {
 }
 
 func isValidLanguageCode(language string) bool {
-	// 一般的な言語コードのリスト
+	// List of common language codes
 	validLanguages := map[string]bool{
 		"en": true, "ja": true, "zh": true, "ko": true, "es": true,
 		"fr": true, "de": true, "it": true, "pt": true, "ru": true,
@@ -176,14 +176,14 @@ func getLanguageName(languageCode string) string {
 }
 
 func saveTranslation(outputPath, translatedContent, originalPath, language string) error {
-	// ファイルに書き込み
+	// Write to file
 	f, err := os.Create(outputPath)
 	if err != nil {
 		return err
 	}
 	defer f.Close()
 
-	// 翻訳内容を直接書き込み
+	// Write translation content directly
 	if _, err := f.WriteString(translatedContent); err != nil {
 		return err
 	}

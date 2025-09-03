@@ -38,17 +38,17 @@ func init() {
 }
 
 func initConfig(logger *slog.Logger) error {
-	// ホームディレクトリを取得
+	// Get home directory
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		return fmt.Errorf("failed to get home directory: %v", err)
 	}
 
-	// ~/.mdaiディレクトリのパス
+	// Path to ~/.mdai directory
 	configDir := filepath.Join(homeDir, ".mdai")
 	configPath := filepath.Join(configDir, "config.yml")
 
-	// 設定ディレクトリが存在しない場合は作成
+	// Create config directory if it doesn't exist
 	if _, err := os.Stat(configDir); os.IsNotExist(err) {
 		logger.Info("creating config directory", "path", configDir)
 		if err := os.MkdirAll(configDir, 0755); err != nil {
@@ -56,14 +56,14 @@ func initConfig(logger *slog.Logger) error {
 		}
 	}
 
-	// 設定ファイルが既に存在する場合は確認
+	// Check if config file already exists
 	if _, err := os.Stat(configPath); err == nil {
 		logger.Info("config file already exists", "path", configPath)
 		logger.Info("if you want to overwrite, please remove the existing file first")
 		return nil
 	}
 
-	// サンプル設定ファイルのパス（実行ファイルと同じディレクトリ）
+	// Path to sample config file (same directory as executable)
 	execPath, err := os.Executable()
 	if err != nil {
 		return fmt.Errorf("failed to get executable path: %v", err)
@@ -71,7 +71,7 @@ func initConfig(logger *slog.Logger) error {
 	execDir := filepath.Dir(execPath)
 	sampleConfigPath := filepath.Join(execDir, "config.sample.yml")
 
-	// サンプル設定ファイルが存在しない場合は、カレントディレクトリを試す
+	// If sample config file doesn't exist, try current directory
 	if _, err := os.Stat(sampleConfigPath); os.IsNotExist(err) {
 		currentDir, err := os.Getwd()
 		if err != nil {
@@ -80,18 +80,18 @@ func initConfig(logger *slog.Logger) error {
 		sampleConfigPath = filepath.Join(currentDir, "config.sample.yml")
 	}
 
-	// サンプル設定ファイルの存在確認
+	// Check if sample config file exists
 	if _, err := os.Stat(sampleConfigPath); os.IsNotExist(err) {
 		return fmt.Errorf("sample config file not found at: %s", sampleConfigPath)
 	}
 
-	// サンプル設定ファイルを読み込み
+	// Read sample config file
 	sampleData, err := os.ReadFile(sampleConfigPath)
 	if err != nil {
 		return fmt.Errorf("failed to read sample config file: %v", err)
 	}
 
-	// 設定ファイルに書き込み
+	// Write to config file
 	if err := os.WriteFile(configPath, sampleData, 0644); err != nil {
 		return fmt.Errorf("failed to write config file: %v", err)
 	}

@@ -28,7 +28,7 @@ func LoadLastQuote(content string) (string, string, error) {
 			continue
 		}
 		if len(line) > 0 && line[0] == '>' {
-			lastQuote = line[1:] // '>' の後ろの部分
+			lastQuote = line[1:] // Part after '>'
 			if len(lastQuote) > 0 && lastQuote[0] == ' ' {
 				lastQuote = lastQuote[1:]
 			}

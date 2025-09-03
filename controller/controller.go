@@ -30,7 +30,7 @@ func (c *OpenAIController) Control(sysMsg, usrMsg string, quality config.Quality
 	var modelID = openai.ChatModelGPT4oMini
 	client := openai.NewClient(option.WithAPIKey(c.apiKey))
 
-	// 設定値が0の場合はデフォルト値を使用
+	// Use default values if configuration values are 0
 	maxTokens := quality.MaxTokens
 	temperature := quality.Temperature
 	if maxTokens == 0 {

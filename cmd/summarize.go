@@ -45,37 +45,37 @@ func summarize(args []string, logger *slog.Logger) error {
 	}
 	path := args[0]
 
-	// ファイルの存在確認
+	// Check if file exists
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		return fmt.Errorf("file not found: %s", path)
 	}
 
-	// ファイル拡張子の確認
+	// Check file extension
 	if !strings.HasSuffix(strings.ToLower(path), ".md") {
 		return fmt.Errorf("file must have .md extension: %s", path)
 	}
 
-	// 出力ファイル名の生成
+	// Generate output filename
 	outputPath := generateOutputPath(path)
 
-	// ファイル内容の読み込み
+	// Load file content
 	content, err := loadContent(path)
 	if err != nil {
 		return fmt.Errorf("fail in loading content: %v", err)
 	}
 
-	// 設定ファイルを読み込み
+	// Load configuration file
 	cfg, err := config.LoadConfig()
 	if err != nil {
 		logger.Warn("failed to load config, using defaults", "error", err)
-		// エラーが発生した場合はデフォルト設定を使用
+		// Use default configuration if error occurs
 		cfg = config.GetDefaultConfig()
 	}
 
-	// 設定ファイルからシステムメッセージを取得
+	// Get system message from configuration
 	sysMsg := cfg.Summarize.SystemMessage
 
-	// 設定ファイルからユーザーメッセージを取得し、テンプレート処理を行う
+	// Get user message from configuration and apply template processing
 	userMsg, err := cfg.Summarize.UserMessage.Apply(map[string]string{
 		"Content": content,
 	})
@@ -83,16 +83,16 @@ func summarize(args []string, logger *slog.Logger) error {
 		return fmt.Errorf("fail in creating user message: %v", err)
 	}
 
-	// 設定ファイルから品質設定を取得
+	// Get quality settings from configuration
 	maxTokens := cfg.Default.Quality.MaxTokens
 	temperature := cfg.Default.Quality.Temperature
 
-	// システムメッセージに文字数の指示を追加
+	// Add character count instruction to system message
 	if cfg.Summarize.TargetLength > 0 {
 		sysMsg += fmt.Sprintf("\n\n**Summary Length Guidance**: Please provide a summary of approximately %d characters.", cfg.Summarize.TargetLength)
 	}
 
-	// 設定値をログに出力
+	// Log configuration values
 	logger.Info("using configuration",
 		"maxTokens", maxTokens,
 		"temperature", temperature,
@@ -101,7 +101,7 @@ func summarize(args []string, logger *slog.Logger) error {
 	controller.Control(sysMsg, userMsg, cfg.Default.Quality, func(completion *openai.ChatCompletion) error {
 		summary := completion.Choices[0].Message.Content
 
-		// 要約結果をファイルに保存
+		// Save summary result to file
 		if err := saveSummary(outputPath, summary, path); err != nil {
 			return fmt.Errorf("fail in saving summary: %v", err)
 		}
@@ -121,14 +121,14 @@ func generateOutputPath(inputPath string) string {
 }
 
 func saveSummary(outputPath, summary, originalPath string) error {
-	// ファイルに書き込み
+	// Write to file
 	f, err := os.Create(outputPath)
 	if err != nil {
 		return err
 	}
 	defer f.Close()
 
-	// 要約内容を直接書き込み
+	// Write summary content directly
 	if _, err := f.WriteString(summary); err != nil {
 		return err
 	}
