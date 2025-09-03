@@ -1,6 +1,9 @@
 PHONY: install
 
-install:
+clean:
+	@ rm -f mdai && rm -f mdai.exe && sudo rm -f /usr/local/bin/mdai
+
+install: clean
 	@ go build -o mdai mdai.go && sudo mv mdai /usr/local/bin/
 
 run:

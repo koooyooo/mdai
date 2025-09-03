@@ -14,7 +14,7 @@ Markdownファイルの内容をAIに質問し、回答を自動で追記するC
 
 - Go 1.22.0以上
 - OpenAI APIキー
-    - https://platform.openai.com/api-keys
+    - see: https://platform.openai.com/api-keys
 
 ## 🛠️ インストール
 
@@ -140,7 +140,7 @@ mdai/
 │   └── helpers.go      # ヘルパー関数
 ├── util/          # ユーティリティ
 │   └── file/      # ファイル操作
-├── main.go        # エントリーポイント
+├── mdai.go        # エントリーポイント
 └── go.mod         # Goモジュール定義
 ```
 
