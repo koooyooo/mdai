@@ -17,8 +17,10 @@ import (
 // answerCmd represents the answer command
 var answerCmd = &cobra.Command{
 	Use:   "answer",
-	Short: "A brief description of your command",
-	Long:  ``,
+	Short: "Answer the question based on the content of a markdown file",
+	Long: `Answer the question based on the content of a markdown file.
+	The question will be extracted from the last quote in the file.
+	The answer will be appended to the end of the file.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		logger := slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
 			Level: slog.LevelInfo,
