@@ -15,6 +15,7 @@ This is a CLI tool that allows you to ask questions about the contents of a Mark
 
 - Go 1.22.0 or higher
 - OpenAI API key
+    - **Required**: Set `OPENAI_API_KEY` environment variable
     - see: https://platform.openai.com/api-keys
 
 For detailed installation and setup instructions, please refer to [INSTALL.md](INSTALL.md).
@@ -106,14 +107,9 @@ The translation results will be saved as `ai_learning_en.md` and `ai_learning_ja
 
 ## 💰 Cost Calculation
 
-mdai automatically calculates API usage costs and displays them in the logs. Current model prices are as follows:
+mdai automatically calculates API usage costs and displays them in the logs.
 
-- **GPT-4o-mini**: $0.15/1M input, $0.60/1M output (default)
-- **GPT-4o**: $2.50/1M input, $10.00/1M output
-- **GPT-4 Turbo**: $10.00/1M input, $30.00/1M output
-- **GPT-3.5-turbo**: $0.50/1M input, $1.50/1M output
-
-**Note**: Currently, the default model being used is GPT-4o-mini.
+**Note**: Currently, the default model being used is GPT-4o-mini. Please check the [OpenAI pricing page](https://openai.com/pricing) for current model prices.
 
 ## 🏗️ Project Structure
 

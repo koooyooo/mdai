@@ -15,6 +15,7 @@ Markdownファイルの内容をAIに質問し、回答を自動で追記するC
 
 - Go 1.22.0以上
 - OpenAI APIキー
+    - **必須**: `OPENAI_API_KEY`環境変数を設定してください
     - see: https://platform.openai.com/api-keys
 
 詳細なインストールとセットアップ手順は [INSTALL.md](INSTALL.md) を参照してください。
@@ -106,14 +107,9 @@ mdai translate ai_learning.md ja
 
 ## 💰 コスト計算
 
-mdaiは自動的にAPI使用コストを計算し、ログに表示します。現在使用されているモデルの価格：
+mdaiは自動的にAPI使用コストを計算し、ログに表示します。
 
-- **GPT-4o-mini**: $0.15/1M input, $0.60/1M output（デフォルト）
-- **GPT-4o**: $2.50/1M input, $10.00/1M output
-- **GPT-4 Turbo**: $10.00/1M input, $30.00/1M output
-- **GPT-3.5-turbo**: $0.50/1M input, $1.50/1M output
-
-**注意**: 現在の実装では、GPT-4o-miniがデフォルトモデルとして使用されています。
+**注意**: 現在の実装では、GPT-4o-miniがデフォルトモデルとして使用されています。現在のモデル価格については[OpenAI料金ページ](https://openai.com/pricing)をご確認ください。
 
 
 ## 🏗️ プロジェクト構造
