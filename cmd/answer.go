@@ -65,15 +65,15 @@ func answer(args []string, logger *slog.Logger) error {
 	temperature := cfg.Default.Quality.Temperature
 
 	// システムメッセージに文字数の指示を追加
-	if cfg.Answer.TargetChars > 0 {
-		sysMsg += fmt.Sprintf("\n\n**Answer Length Guidance**: Please provide an answer of approximately %d characters.", cfg.Answer.TargetChars)
+	if cfg.Answer.TargetLength > 0 {
+		sysMsg += fmt.Sprintf("\n\n**Answer Length Guidance**: Please provide an answer of approximately %d characters.", cfg.Answer.TargetLength)
 	}
 
 	// 設定値をログに出力
 	logger.Info("using configuration",
 		"maxTokens", maxTokens,
 		"temperature", temperature,
-		"targetChars", cfg.Answer.TargetChars)
+		"targetLength", cfg.Answer.TargetLength)
 
 	controller.Control(sysMsg, userMsg, cfg.Default.Quality, func(completion *openai.ChatCompletion) error {
 		answer := completion.Choices[0].Message.Content

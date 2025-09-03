@@ -1,179 +1,195 @@
 # mdai
 
-Markdownファイルの内容をAIに質問し、回答を自動で追記するCLIツールです。
+This is a CLI tool that allows you to ask questions about the contents of a Markdown file to an AI and automatically append the answers.
 
-## 🚀 機能
+## 🚀 Features
 
-- **AI質問**: Markdownファイルの引用部分を抽出してAIに質問
-- **自動追記**: AIの回答を元のファイルに自動で追記
-- **コスト計算**: OpenAI APIの使用コストを自動計算
-- **AI質問**: OpenAIのGPTモデルを使用して質問に回答
-- **クロスプラットフォーム**: Windows、macOS、Linuxで動作
+- **AI Questions**: Extracts quoted parts from the Markdown file to ask the AI
+- **Automatic Append**: Automatically appends the AI's answers to the original file
+- **Cost Calculation**: Automatically calculates the usage cost of the OpenAI API
+- **AI Answers**: Uses OpenAI's GPT model to respond to questions
+- **AI Translation**: Translates the Markdown file to a specified language
+- **Cross-Platform**: Works on Windows, macOS, and Linux
 
-## 📋 前提条件
+## 📋 Prerequisites
 
-- Go 1.22.0以上
-- OpenAI APIキー
+- Go 1.22.0 or higher
+- OpenAI API key
     - see: https://platform.openai.com/api-keys
 
-詳細なインストールとセットアップ手順は [INSTALL.md](INSTALL.md) を参照してください。
+For detailed installation and setup instructions, please refer to [INSTALL.md](INSTALL.md).
 
-## 📖 使用方法
+## 📖 Usage
 
-### 基本的な使用方法
+### Basic Usage
 
 ```bash
-# 設定ファイルの初期化（初回のみ）
+# Initialize the configuration file (only on first use)
 mdai init
 
-# Markdownファイルの引用部分をAIに質問
+# Ask the AI about quoted parts of the Markdown file
 mdai answer path/to/your/file.md
 
-# Markdownファイルの内容を要約
+# Summarize the contents of the Markdown file
 mdai summarize path/to/your/file.md
+
+# Translate the Markdown file to a specified language
+mdai translate path/to/your/file.md ja
 ```
 
-### 設定ファイルのカスタマイズ
+### Customizing the Configuration File
 
-mdaiは設定ファイルを使用して動作をカスタマイズできます。設定ファイルは `~/.mdai/config.yml` に配置されます。
+mdai can use a configuration file to customize its operation. The configuration file is located at `~/.mdai/config.yml`.
 
-#### 設定ファイルの初期化
+#### Initializing the Configuration File
 
 ```bash
-# 設定ファイルを初期化（初回セットアップ）
+# Initialize the configuration file (first setup)
 mdai init
 ```
 
-このコマンドは以下を実行します：
-1. `~/.mdai` ディレクトリを作成
-2. `config.sample.yml` を `~/.mdai/config.yml` にコピー
-3. 設定ファイルのパスを表示
+This command performs the following actions:
+1. Creates the `~/.mdai` directory
+2. Copies `config.sample.yml` to `~/.mdai/config.yml`
+3. Displays the path to the configuration file
 
-#### 設定項目
+#### Configuration Items
 
-- **デフォルト設定**: AIモデル、品質設定、ログレベル
-- **answerコマンド**: システムメッセージ、目標文字数
-- **summarizeコマンド**: システムメッセージ、目標文字数
+- **Default Settings**: AI model, quality settings, log level
+- **answer Command**: System message, target character count
+- **summarize Command**: System message, target character count
+- **translate Command**: System message
 
-詳細な設定例は `config/config.sample.yml` を参照してください。
+For detailed configuration examples, refer to `config/config.sample.yml`.
 
-### 使用例
+### Usage Example
 
-1. **Markdownファイルの準備**
+1. **Prepare the Markdown File**
 
 ```markdown
-# AI学習メモ
+# AI Learning Notes
 
-> AIを学ぶにあたってコツはありますか？
+> Are there any tips for learning AI?
 
-ここに既存の内容があれば、AIの回答が追記されます。
+If there is existing content here, the AI's answer will be appended.
 ```
 
-2. **AIに質問**
+2. **Ask the AI**
 
 ```bash
 mdai answer ai_learning.md
 ```
 
-3. **結果**
+3. **Result**
 
 ```markdown
-# AI学習メモ
+# AI Learning Notes
 
-> AIを学ぶにあたってコツはありますか？
+> Are there any tips for learning AI?
 
-ここに既存の内容があれば、AIの回答が追記されます。
+If there is existing content here, the AI's answer will be appended.
 
-AIを学ぶにあたってのコツはいくつかあります。まず、基礎知識をしっかりと固めることが重要です...
+There are several tips for learning AI. First, it is important to solidify your foundational knowledge...
 ```
 
-## 💰 コスト計算
+### Translation Example
 
-mdaiは自動的にAPI使用コストを計算し、ログに表示します。現在使用されているモデルの価格：
+```bash
+# Translate to English
+mdai translate ai_learning.md en
 
-- **GPT-4o-mini**: $0.15/1M input, $0.60/1M output（デフォルト）
+# Translate to Japanese
+mdai translate ai_learning.md ja
+```
+
+The translation results will be saved as `ai_learning_en.md` and `ai_learning_ja.md`.
+
+## 💰 Cost Calculation
+
+mdai automatically calculates API usage costs and displays them in the logs. Current model prices are as follows:
+
+- **GPT-4o-mini**: $0.15/1M input, $0.60/1M output (default)
 - **GPT-4o**: $2.50/1M input, $10.00/1M output
 - **GPT-4 Turbo**: $10.00/1M input, $30.00/1M output
 - **GPT-3.5-turbo**: $0.50/1M input, $1.50/1M output
 
-**注意**: 現在の実装では、GPT-4o-miniがデフォルトモデルとして使用されています。
+**Note**: Currently, the default model being used is GPT-4o-mini.
 
-
-## 🏗️ プロジェクト構造
+## 🏗️ Project Structure
 
 ```
 mdai/
-├── cmd/           # CLIコマンド
-│   ├── answer.go     # answerコマンドの実装
-│   ├── summarize.go  # summarizeコマンドの実装
-│   ├── init.go       # initコマンドの実装
-│   └── root.go       # ルートコマンド
-├── config/        # 設定ファイル
-│   └── config.go     # 設定構造体と読み込み処理
-├── config.sample.yml # サンプル設定ファイル
-├── controller/    # AI制御
-│   └── controller.go # OpenAI API制御
-├── models/        # AIモデル関連
-│   ├── ai_model.go    # AIモデルの定義
-│   ├── constants.go    # モデル定数
-│   └── helpers.go      # ヘルパー関数
-├── util/          # ユーティリティ
-│   └── file/      # ファイル操作
-├── mdai.go        # エントリーポイント
-└── go.mod         # Goモジュール定義
+├── cmd/           # CLI commands
+│   ├── answer.go     # Implementation of the answer command
+│   ├── summarize.go  # Implementation of the summarize command
+│   ├── translate.go  # Implementation of the translate command
+│   ├── init.go       # Implementation of the init command
+│   └── root.go       # Root command
+├── config/        # Configuration files
+│   └── config.go     # Configuration struct and loading process
+├── config.sample.yml # Sample configuration file
+├── controller/    # AI control
+│   └── controller.go # OpenAI API control
+├── models/        # AI model related
+│   ├── ai_model.go    # Definition of AI models
+│   ├── constants.go    # Model constants
+│   └── helpers.go      # Helper functions
+├── util/          # Utilities
+│   └── file/      # File operations
+├── mdai.go        # Entry point
+└── go.mod         # Go module definition
 ```
 
-## 🔧 開発
+## 🔧 Development
 
-### 依存関係の追加
+### Adding Dependencies
 
 ```bash
 go get github.com/package-name
 ```
 
-### テストの実行
+### Running Tests
 
 ```bash
 go test ./...
 ```
 
-### リントの実行
+### Running Lint
 
 ```bash
-# golangci-lintがインストールされている場合
+# If golangci-lint is installed
 golangci-lint run
 ```
 
-## 📝 ライセンス
+## 📝 License
 
-このプロジェクトはMITライセンスの下で公開されています。詳細は[LICENSE](LICENSE)ファイルを参照してください。
+This project is licensed under the MIT License. Please refer to the [LICENSE](LICENSE) file for details.
 
-## 🤝 コントリビューション
+## 🤝 Contribution
 
-プルリクエストやイシューの報告を歓迎します！
+Pull requests and issue reports are welcome!
 
-1. このリポジトリをフォーク
-2. 機能ブランチを作成 (`git checkout -b feature/amazing-feature`)
-3. 変更をコミット (`git commit -m 'Add some amazing feature'`)
-4. ブランチにプッシュ (`git push origin feature/amazing-feature`)
-5. プルリクエストを作成
+1. Fork this repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Create a pull request
 
-### 🚧 開発状況
+### 🚧 Development Status
 
-現在、以下の機能が実装されています：
-- OpenAI GPTモデルを使用した質問回答
-- Markdownファイルの引用抽出と回答追記
-- コスト計算機能
+Currently, the following features have been implemented:
+- Question answering using OpenAI GPT models
+- Extraction of quoted parts from Markdown files and appending answers
+- Cost calculation feature
 
-今後の開発予定：
-- モデル選択機能の追加
-- 他のAIプロバイダー（Claude等）への対応
-- 設定ファイルによるカスタマイズ
+Planned developments include:
+- Adding a model selection feature
+- Support for other AI providers (e.g., Claude)
+- Customization through configuration files
 
-**注意**: このツールを使用する際は、OpenAI APIの利用規約と料金体系を確認してください。
+**Note**: Please check the OpenAI API terms of service and pricing structure when using this tool.
 
-## 🔗 関連リンク
+## 🔗 Related Links
 
-- [INSTALL.md](INSTALL.md) - インストールとセットアップ手順
-- [LICENSE](LICENSE) - ライセンス情報
-
+- [INSTALL.md](INSTALL.md) - Installation and setup instructions
+- [LICENSE](LICENSE) - License information

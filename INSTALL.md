@@ -1,57 +1,57 @@
-# インストールとセットアップ
+# Installation and Setup
 
-このドキュメントでは、mdaiのインストールとセットアップについて詳しく説明します。
+This document provides detailed instructions on installing and setting up mdai.
 
-## 📋 前提条件
+## 📋 Prerequisites
 
-- Go 1.22.0以上
-- OpenAI APIキー
+- Go version 1.22.0 or higher
+- OpenAI API key
     - see: https://platform.openai.com/api-keys
 
-## 🛠️ インストール
+## 🛠️ Installation
 
-### 方法1: go installを使用（推奨）
+### Method 1: Using `go install` (Recommended)
 
 ```bash
 go install github.com/koooyooo/mdai@latest
 ```
 
-### 方法2: ソースからビルド
+### Method 2: Building from Source
 
-#### 1. リポジトリのクローン
+#### 1. Clone the Repository
 
 ```bash
 $ git clone https://github.com/koooyooo/mdai.git
 $ cd mdai
 ```
 
-#### 2. 依存関係のインストール
+#### 2. Install Dependencies
 
 ```bash
 $ go mod download
 ```
 
-#### 3. ビルド
+#### 3. Build
 
 ```bash
 $ go build -o mdai
 ```
 
-#### 4. 実行可能ファイルをPATHに追加（オプション）
+#### 4. (Optional) Add the Executable to PATH
 
 ```bash
 # macOS/Linux
 $ sudo cp mdai /usr/local/bin/
 
 # Windows
-# mdai.exeを適切なディレクトリにコピー
+# Copy mdai.exe to an appropriate directory
 ```
 
-## 🔑 セットアップ
+## 🔑 Setup
 
-### OpenAI APIキーの設定
+### Setting the OpenAI API Key
 
-環境変数にOpenAI APIキーを設定してください：
+Please set the OpenAI API key in your environment variables:
 
 ```bash
 # macOS/Linux
@@ -61,44 +61,44 @@ export OPENAI_API_KEY="your-api-key-here"
 set OPENAI_API_KEY=your-api-key-here
 ```
 
-または、`.bashrc`や`.zshrc`に追加して永続化：
+Alternatively, you can add it to `.bashrc` or `.zshrc` for persistence:
 
 ```bash
 echo 'export OPENAI_API_KEY="your-api-key-here"' >> ~/.bashrc
 source ~/.bashrc
 ```
 
-## ✅ インストール確認
+## ✅ Verifying the Installation
 
-インストールが完了したかどうかを確認するには：
+To check if the installation was successful:
 
 ```bash
 mdai --version
 ```
 
-または
+Or
 
 ```bash
 mdai --help
 ```
 
-## 🚨 トラブルシューティング
+## 🚨 Troubleshooting
 
-### よくある問題
+### Common Issues
 
-1. **コマンドが見つからない**
-   - GoのPATHが正しく設定されているか確認
-   - `go env GOPATH`でGoのパスを確認
+1. **Command not found**
+   - Ensure the Go PATH is set correctly
+   - Check the Go path using `go env GOPATH`
 
-2. **APIキーが認識されない**
-   - 環境変数が正しく設定されているか確認
-   - ターミナルを再起動して環境変数を再読み込み
+2. **API key not recognized**
+   - Ensure the environment variable is set correctly
+   - Restart the terminal to reload the environment variable
 
-3. **権限エラー**
-   - 実行可能ファイルに実行権限があるか確認
-   - `chmod +x mdai`で権限を付与
+3. **Permission errors**
+   - Check if the executable has execution permissions
+   - Grant permissions using `chmod +x mdai`
 
-## 🔗 関連リンク
+## 🔗 Related Links
 
-- [README.md](README.md) - プロジェクト概要と使用方法
-- [LICENSE](LICENSE) - ライセンス情報
+- [README.md](README.md) - Project overview and usage instructions
+- [LICENSE](LICENSE) - License information
