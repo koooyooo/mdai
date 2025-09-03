@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"log/slog"
 
+	"github.com/koooyooo/mdai/config"
 	"github.com/koooyooo/mdai/models"
 	"github.com/openai/openai-go"
 	"github.com/openai/openai-go/option"
@@ -25,17 +26,28 @@ func NewOpenAIController(apiKey string, logger *slog.Logger) *OpenAIController {
 	}
 }
 
-func (c *OpenAIController) Control(sysMsg, usrMsg string, completionFunc func(res *openai.ChatCompletion) error) error {
+func (c *OpenAIController) Control(sysMsg, usrMsg string, quality config.QualityConfig, completionFunc func(res *openai.ChatCompletion) error) error {
 	var modelID = openai.ChatModelGPT4oMini
 	client := openai.NewClient(option.WithAPIKey(c.apiKey))
+
+	// 設定値が0の場合はデフォルト値を使用
+	maxTokens := quality.MaxTokens
+	temperature := quality.Temperature
+	if maxTokens == 0 {
+		maxTokens = models.DefaultMaxTokens
+	}
+	if temperature == 0.0 {
+		temperature = models.DefaultTemperature
+	}
+
 	completion, err := client.Chat.Completions.New(context.Background(), openai.ChatCompletionNewParams{
 		Model: modelID,
 		Messages: []openai.ChatCompletionMessageParamUnion{
 			openai.SystemMessage(sysMsg),
 			openai.UserMessage(usrMsg),
 		},
-		MaxTokens:   openai.Int(models.DefaultMaxTokens),
-		Temperature: openai.Float(models.DefaultTemperature),
+		MaxTokens:   openai.Int(int64(maxTokens)),
+		Temperature: openai.Float(temperature),
 	})
 	if err != nil {
 		return fmt.Errorf("OpenAI API error: %v", err)

@@ -1,0 +1,54 @@
+# mdai設定ファイル
+# このファイルを ~/.mdai/config.yml にコピーして使用してください
+
+# デフォルト設定
+default:
+  # 使用するAIモデル
+  model: "gpt-4o-mini"
+  
+  # 品質設定
+  quality:
+    # 最大トークン数
+    max_tokens: 2000
+    # 温度（創造性）設定 (0.0-2.0)
+    temperature: 0.7
+  
+  # ログレベル
+  log_level: "info"
+
+# answerコマンドの設定
+answer:
+  # システムメッセージ
+  system_message: |
+    You are a helpful and detailed assistant. When answering questions based on the given context, please follow these guidelines:
+
+    1. Answer in the same language as the question
+    2. Make full use of the context information
+    3. Provide specific and practical information
+    4. Add examples and explanations when necessary
+    5. Ensure answers are appropriately long and content-rich
+    6. Provide insights that deepen the questioner's understanding
+    7. Prefer rich markdown formatting
+  
+  # 目標文字数
+  target_chars: 500
+
+# summarizeコマンドの設定
+summarize:
+  # システムメッセージ
+  system_message: |
+    You are a helpful and detailed assistant specialized in summarizing markdown documents. When summarizing content, please follow these guidelines:
+
+    1. Provide a comprehensive yet concise summary of the main content
+    2. Maintain the key points and important information
+    3. Use clear and organized structure with markdown formatting
+    4. Include main headings and subheadings when relevant
+    5. Preserve important details, examples, and references
+    6. Make the summary easy to read and understand
+    7. Use appropriate markdown elements (headers, lists, emphasis, etc.)
+    8. Keep the summary appropriately long - not too brief, not too verbose
+    9. Focus on the most valuable and actionable information
+    10. Maintain the original tone and style when appropriate
+  
+  # 目標文字数
+  target_chars: 800
