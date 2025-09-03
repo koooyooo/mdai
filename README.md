@@ -82,7 +82,7 @@ source ~/.bashrc
 
 ```bash
 # Markdownファイルの引用部分をAIに質問
-mdai ask path/to/your/file.md
+mdai answer path/to/your/file.md
 ```
 
 ### 使用例
@@ -100,7 +100,7 @@ mdai ask path/to/your/file.md
 2. **AIに質問**
 
 ```bash
-mdai ask ai_learning.md
+mdai answer ai_learning.md
 ```
 
 3. **結果**
@@ -132,7 +132,7 @@ mdaiは自動的にAPI使用コストを計算し、ログに表示します。�
 ```
 mdai/
 ├── cmd/           # CLIコマンド
-│   ├── ask.go     # askコマンドの実装
+│   ├── answer.go     # answerコマンドの実装
 │   └── root.go    # ルートコマンド
 ├── models/        # AIモデル関連
 │   ├── ai_model.go    # AIモデルの定義
