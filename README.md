@@ -1,6 +1,6 @@
-<div style="text-align: center;">
-    <img src="image/logo_markd_ai.png" style="height: 500px; width: 500px;"/>
-</div>
+<p align="center">
+    <img src="image/logo_markd_ai.png" width="500" height="500"/>
+</p>
 
 # mark d'AI
 /mɑːrk di: aɪ/
