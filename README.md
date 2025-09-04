@@ -1,4 +1,6 @@
-<img src="image/logo_markd_ai.png" style="height: 500px; width: 500px"/>
+<div style="text-align: center;">
+    <img src="image/logo_markd_ai.png" style="height: 500px; width: 500px;"/>
+</div>
 
 # mark d'AI
 /mɑːrk di: aɪ/
