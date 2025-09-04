@@ -1,5 +1,7 @@
 # mdai
 
+<img src="image/logo.png" style="height: 500px; width: 500px"/>
+
 Markdownファイルの内容をAIに質問し、回答を自動で追記するCLIツールです。
 
 ## 🚀 機能

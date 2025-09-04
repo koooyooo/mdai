@@ -1,5 +1,7 @@
 # mdai
 
+<img src="image/logo.png" style="height: 500px; width: 500px"/>
+
 This is a CLI tool that allows you to ask questions about the contents of a Markdown file to an AI and automatically append the answers.
 
 ## 🚀 Features
