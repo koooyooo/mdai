@@ -4,6 +4,7 @@ Copyright © 2025 koooyooo
 package cmd
 
 import (
+	_ "embed"
 	"fmt"
 	"log/slog"
 	"os"
@@ -11,6 +12,9 @@ import (
 
 	"github.com/spf13/cobra"
 )
+
+//go:embed config.sample.yml
+var configSample []byte
 
 // initCmd represents the init command
 var initCmd = &cobra.Command{
@@ -63,36 +67,8 @@ func initConfig(logger *slog.Logger) error {
 		return nil
 	}
 
-	// Path to sample config file (same directory as executable)
-	execPath, err := os.Executable()
-	if err != nil {
-		return fmt.Errorf("failed to get executable path: %v", err)
-	}
-	execDir := filepath.Dir(execPath)
-	sampleConfigPath := filepath.Join(execDir, "config.sample.yml")
-
-	// If sample config file doesn't exist, try current directory
-	if _, err := os.Stat(sampleConfigPath); os.IsNotExist(err) {
-		currentDir, err := os.Getwd()
-		if err != nil {
-			return fmt.Errorf("failed to get current directory: %v", err)
-		}
-		sampleConfigPath = filepath.Join(currentDir, "config.sample.yml")
-	}
-
-	// Check if sample config file exists
-	if _, err := os.Stat(sampleConfigPath); os.IsNotExist(err) {
-		return fmt.Errorf("sample config file not found at: %s", sampleConfigPath)
-	}
-
-	// Read sample config file
-	sampleData, err := os.ReadFile(sampleConfigPath)
-	if err != nil {
-		return fmt.Errorf("failed to read sample config file: %v", err)
-	}
-
-	// Write to config file
-	if err := os.WriteFile(configPath, sampleData, 0644); err != nil {
+	// Write embedded config sample to config file
+	if err := os.WriteFile(configPath, configSample, 0644); err != nil {
 		return fmt.Errorf("failed to write config file: %v", err)
 	}
 

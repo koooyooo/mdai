@@ -1,24 +1,23 @@
-# mdai設定ファイル
-# このファイルを ~/.mdai/config.yml にコピーして使用してください
+# mdai Configuration File
 
-# デフォルト設定
+# Default Settings
 default:
-  # 使用するAIモデル
+  # AI Model to use
   model: "gpt-4o-mini"
   
-  # 品質設定
+  # Quality Settings
   quality:
-    # 最大トークン数
+    # Maximum number of tokens
     max_tokens: 2000
-    # 温度（創造性）設定 (0.0-2.0)
+    # Temperature (creativity) setting (0.0-2.0)
     temperature: 0.7
   
-  # ログレベル
+  # Log Level
   log_level: "info"
 
-# answerコマンドの設定
+# Answer Command Settings
 answer:
-  # システムメッセージ
+  # System Message
   system_message: |
     You are a helpful and detailed assistant. When answering questions based on the given context, please follow these guidelines:
 
@@ -30,19 +29,19 @@ answer:
     6. Provide insights that deepen the questioner's understanding
     7. Prefer rich markdown formatting
   
-  # ユーザーメッセージ（テンプレート）
+  # User Message Template
   user_message:
     template: |
       Context: {{.Context}}
 
       Question: {{.Question}}
   
-  # 目標文字数
+  # Target Character Count
   target_length: 500
 
-# summarizeコマンドの設定
+# Summarize Command Settings
 summarize:
-  # システムメッセージ
+  # System Message
   system_message: |
     You are a helpful and detailed assistant specialized in summarizing markdown documents. When summarizing content, please follow these guidelines:
 
@@ -57,7 +56,7 @@ summarize:
     9. Focus on the most valuable and actionable information
     10. Maintain the original tone and style when appropriate
   
-  # ユーザーメッセージ（テンプレート）
+  # User Message Template
   user_message:
     template: |
       Please provide a comprehensive summary of the following markdown content:
@@ -66,12 +65,12 @@ summarize:
 
       Please create a well-structured summary that captures the essence and key points of this content.
   
-  # 目標文字数
+  # Target Character Count
   target_length: 800
 
-# translateコマンドの設定
+# Translate Command Settings
 translate:
-  # システムメッセージ
+  # System Message
   system_message: |
     You are a professional translator specialized in translating markdown documents. When translating content, please follow these guidelines:
 
@@ -86,7 +85,7 @@ translate:
     9. Use appropriate language conventions for the target language
     10. Ensure the translation sounds natural to native speakers of the target language
   
-  # ユーザーメッセージ（テンプレート）
+  # User Message Template
   user_message:
     template: |
       Please translate the following content to {{.TargetLanguage}}:
