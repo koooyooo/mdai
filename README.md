@@ -4,11 +4,10 @@ This is a CLI tool that allows you to ask questions about the contents of a Mark
 
 ## 🚀 Features
 
-- **AI Questions**: Extracts quoted parts from the Markdown file to ask the AI
-- **Automatic Append**: Automatically appends the AI's answers to the original file
+- **AI Questions**: Extracts the last quoted part from the Markdown file to ask the AI and automatically appends the answer to the original file
+- **AI Summary**: Summarizes Markdown files (saves to a separate file)
+- **AI Translation**: Translates Markdown files to a specified language (saves to a separate file)
 - **Cost Calculation**: Automatically calculates the usage cost of the OpenAI API
-- **AI Answers**: Uses OpenAI's GPT model to respond to questions
-- **AI Translation**: Translates the Markdown file to a specified language
 - **Cross-Platform**: Works on Windows, macOS, and Linux
 
 ## 📋 Prerequisites
