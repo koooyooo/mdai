@@ -42,8 +42,14 @@ func init() {
 }
 
 func translate(args []string, logger *slog.Logger) error {
+	cfg, err := config.LoadConfig()
+	if err != nil {
+		logger.Warn("failed to load config, using defaults", "error", err)
+		// Use default configuration if error occurs
+		cfg = config.GetDefaultConfig()
+	}
 	client := openai.NewClient(option.WithAPIKey(os.Getenv("OPENAI_API_KEY")))
-	controller := controller.NewOpenAIController(&client, "gpt-4o-mini", logger)
+	controller := controller.NewOpenAIController(&client, cfg.Default.Model, logger)
 
 	if len(args) < 2 {
 		return fmt.Errorf("both filepath and language are required")
