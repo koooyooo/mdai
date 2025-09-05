@@ -11,25 +11,23 @@ import (
 	"github.com/koooyooo/mdai/config"
 	"github.com/koooyooo/mdai/models"
 	"github.com/openai/openai-go"
-	"github.com/openai/openai-go/option"
 )
 
 type OpenAIController struct {
-	apiKey string
-	logger *slog.Logger
+	client  *openai.Client
+	modelID string
+	logger  *slog.Logger
 }
 
-func NewOpenAIController(apiKey string, logger *slog.Logger) *OpenAIController {
+func NewOpenAIController(client *openai.Client, modelID string, logger *slog.Logger) *OpenAIController {
 	return &OpenAIController{
-		apiKey: apiKey,
-		logger: logger,
+		client:  client,
+		modelID: modelID,
+		logger:  logger,
 	}
 }
 
 func (c *OpenAIController) Control(sysMsg, usrMsg string, quality config.QualityConfig, completionFunc func(res *openai.ChatCompletion) error) error {
-	var modelID = openai.ChatModelGPT4oMini
-	client := openai.NewClient(option.WithAPIKey(c.apiKey))
-
 	// Use default values if configuration values are 0
 	maxTokens := quality.MaxTokens
 	temperature := quality.Temperature
@@ -40,8 +38,8 @@ func (c *OpenAIController) Control(sysMsg, usrMsg string, quality config.Quality
 		temperature = models.DefaultTemperature
 	}
 
-	completion, err := client.Chat.Completions.New(context.Background(), openai.ChatCompletionNewParams{
-		Model: modelID,
+	completion, err := c.client.Chat.Completions.New(context.Background(), openai.ChatCompletionNewParams{
+		Model: c.modelID,
 		Messages: []openai.ChatCompletionMessageParamUnion{
 			openai.SystemMessage(sysMsg),
 			openai.UserMessage(usrMsg),
@@ -56,7 +54,7 @@ func (c *OpenAIController) Control(sysMsg, usrMsg string, quality config.Quality
 		return fmt.Errorf("no response from OpenAI API")
 	}
 
-	costInfo, err := models.CalculateCostString(modelID, completion.Usage)
+	costInfo, err := models.CalculateCostString(c.modelID, completion.Usage)
 	if err != nil {
 		return fmt.Errorf("cost calculation error: %v", err)
 	}
@@ -64,4 +62,46 @@ func (c *OpenAIController) Control(sysMsg, usrMsg string, quality config.Quality
 	// completion := resp.Choices[0].Message.Content
 
 	return completionFunc(completion)
+}
+
+func (c *OpenAIController) ControlStreaming(sysMsg, usrMsg string, quality config.QualityConfig, completionFunc func(res openai.ChatCompletionChunk) error) error {
+	stream := c.client.Chat.Completions.NewStreaming(context.Background(), openai.ChatCompletionNewParams{
+		Messages: []openai.ChatCompletionMessageParamUnion{
+			openai.SystemMessage(sysMsg),
+			openai.UserMessage(usrMsg),
+		},
+		Seed:  openai.Int(0),
+		Model: c.modelID,
+	})
+
+	// optionally, an accumulator helper can be used
+	acc := openai.ChatCompletionAccumulator{}
+
+	for stream.Next() {
+		chunk := stream.Current()
+		acc.AddChunk(chunk)
+
+		if content, ok := acc.JustFinishedContent(); ok {
+			c.logger.Debug("Content stream finished:", "content", content)
+		}
+
+		// if using tool calls
+		if tool, ok := acc.JustFinishedToolCall(); ok {
+			c.logger.Debug("Tool call stream finished:", "index", tool.Index, "name", tool.Name, "arguments", tool.Arguments)
+		}
+
+		if refusal, ok := acc.JustFinishedRefusal(); ok {
+			c.logger.Debug("Refusal stream finished:", "refusal", refusal)
+		}
+
+		// it's best to use chunks after handling JustFinished events
+		if len(chunk.Choices) > 0 {
+			completionFunc(chunk)
+		}
+	}
+
+	if stream.Err() != nil {
+		return stream.Err()
+	}
+	return nil
 }

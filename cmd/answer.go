@@ -12,6 +12,7 @@ import (
 	"github.com/koooyooo/mdai/controller"
 	"github.com/koooyooo/mdai/util/file"
 	"github.com/openai/openai-go"
+	"github.com/openai/openai-go/option"
 	"github.com/spf13/cobra"
 )
 
@@ -45,7 +46,8 @@ func answer(args []string, logger *slog.Logger) error {
 		cfg = config.GetDefaultConfig()
 	}
 
-	controller := controller.NewOpenAIController(os.Getenv("OPENAI_API_KEY"), logger)
+	client := openai.NewClient(option.WithAPIKey(os.Getenv("OPENAI_API_KEY")))
+	controller := controller.NewOpenAIController(&client, "gpt-4o-mini", logger)
 
 	if len(args) == 0 {
 		return fmt.Errorf("path is required")
@@ -91,14 +93,16 @@ func answer(args []string, logger *slog.Logger) error {
 		"temperature", temperature,
 		"targetLength", cfg.Answer.TargetLength)
 
-	controller.Control(sysMsg, userMsg, cfg.Default.Quality, func(completion *openai.ChatCompletion) error {
-		answer := completion.Choices[0].Message.Content
-		f, err := os.OpenFile(path, os.O_APPEND|os.O_WRONLY, 0644)
+	f, err := os.OpenFile(path, os.O_APPEND|os.O_WRONLY, 0644)
+	defer func() { _ = f.Close() }()
+
+	f.WriteString("\n\n")
+	controller.ControlStreaming(sysMsg, userMsg, cfg.Default.Quality, func(chunk openai.ChatCompletionChunk) error {
+		answer := chunk.Choices[0].Delta.Content
 		if err != nil {
 			return err
 		}
-		defer f.Close()
-		appendText := fmt.Sprintf("\n\n%s\n", answer)
+		appendText := answer
 		if _, err := f.WriteString(appendText); err != nil {
 			return err
 		}
