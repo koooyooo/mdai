@@ -34,7 +34,10 @@ var answerCmd = &cobra.Command{
 	},
 }
 
+var nonStream bool
+
 func init() {
+	answerCmd.Flags().BoolVarP(&nonStream, "nonstream", "ns", false, "Disable streaming output (enables cost calculation)")
 	rootCmd.AddCommand(answerCmd)
 }
 
@@ -87,21 +90,35 @@ func answer(cfg config.Config, args []string, logger *slog.Logger) error {
 		"targetLength", cfg.Answer.TargetLength)
 
 	f, err := os.OpenFile(path, os.O_APPEND|os.O_WRONLY, 0644)
+	if err != nil {
+		return fmt.Errorf("failed to open file: %v", err)
+	}
 	defer func() { _ = f.Close() }()
 
-	f.WriteString("\n\n")
-	controller.ControlStreaming(sysMsg, userMsg, cfg.Default.Quality, func(chunk openai.ChatCompletionChunk) error {
+	if _, err := f.WriteString("\n\n"); err != nil {
+		return fmt.Errorf("failed to write newlines: %v", err)
+	}
+
+	// Disable streaming if either the nonstream flag is set or it's disabled in config
+	if nonStream || cfg.Default.DisableStream {
+		// Non-streaming mode with cost calculation
+		return controller.Control(sysMsg, userMsg, cfg.Default.Quality, func(completion *openai.ChatCompletion) error {
+			answer := completion.Choices[0].Message.Content
+			if _, err := f.WriteString(answer); err != nil {
+				return fmt.Errorf("failed to write answer: %v", err)
+			}
+			return nil
+		})
+	}
+
+	// Streaming mode
+	return controller.ControlStreaming(sysMsg, userMsg, cfg.Default.Quality, func(chunk openai.ChatCompletionChunk) error {
 		answer := chunk.Choices[0].Delta.Content
-		if err != nil {
-			return err
-		}
-		appendText := answer
-		if _, err := f.WriteString(appendText); err != nil {
-			return err
+		if _, err := f.WriteString(answer); err != nil {
+			return fmt.Errorf("failed to write chunk: %v", err)
 		}
 		return nil
 	})
-	return nil
 }
 
 func loadContent(path string) (string, error) {
