@@ -81,14 +81,6 @@ func translate(args []string, logger *slog.Logger) error {
 		return fmt.Errorf("fail in loading content: %v", err)
 	}
 
-	// Load configuration file
-	cfg, err := config.LoadConfig()
-	if err != nil {
-		logger.Warn("failed to load config, using defaults", "error", err)
-		// Use default configuration if error occurs
-		cfg = config.GetDefaultConfig()
-	}
-
 	// Get system message from configuration
 	sysMsg := cfg.Translate.SystemMessage
 
