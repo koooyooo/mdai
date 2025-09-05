@@ -28,10 +28,11 @@ the output will be "document_ja.md".
 
 Supported language codes: "en", "ja", "zh", "ko", "es", "fr", "de", etc.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		cfg := config.GetInstance().GetConfig()
 		logger := slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
-			Level: slog.LevelInfo,
+			Level: cfg.Default.GetLogLevel().Level(),
 		}))
-		if err := translate(args, logger); err != nil {
+		if err := translate(cfg, args, logger); err != nil {
 			logger.Error("fail in calling translate", "error", err)
 		}
 	},
@@ -41,13 +42,7 @@ func init() {
 	rootCmd.AddCommand(translateCmd)
 }
 
-func translate(args []string, logger *slog.Logger) error {
-	cfg, err := config.LoadConfig()
-	if err != nil {
-		logger.Warn("failed to load config, using defaults", "error", err)
-		// Use default configuration if error occurs
-		cfg = config.GetDefaultConfig()
-	}
+func translate(cfg config.Config, args []string, logger *slog.Logger) error {
 	client := openai.NewClient(option.WithAPIKey(os.Getenv("OPENAI_API_KEY")))
 	controller := controller.NewOpenAIController(&client, cfg.Default.Model, logger)
 

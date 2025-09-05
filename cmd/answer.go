@@ -24,10 +24,11 @@ var answerCmd = &cobra.Command{
 	The question will be extracted from the last quote in the file.
 	The answer will be appended to the end of the file.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		cfg := config.GetInstance().GetConfig()
 		logger := slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
-			Level: slog.LevelInfo,
+			Level: cfg.Default.GetLogLevel().Level(),
 		}))
-		if err := answer(args, logger); err != nil {
+		if err := answer(cfg, args, logger); err != nil {
 			logger.Error("fail in calling answer", "error", err)
 		}
 	},
@@ -37,15 +38,7 @@ func init() {
 	rootCmd.AddCommand(answerCmd)
 }
 
-func answer(args []string, logger *slog.Logger) error {
-	// Load configuration file
-	cfg, err := config.LoadConfig()
-	if err != nil {
-		logger.Warn("failed to load config, using defaults", "error", err)
-		// Use default configuration if error occurs
-		cfg = config.GetDefaultConfig()
-	}
-
+func answer(cfg config.Config, args []string, logger *slog.Logger) error {
 	client := openai.NewClient(option.WithAPIKey(os.Getenv("OPENAI_API_KEY")))
 	controller := controller.NewOpenAIController(&client, cfg.Default.Model, logger)
 

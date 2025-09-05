@@ -3,6 +3,7 @@ package config
 import (
 	"bytes"
 	"fmt"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"text/template"
@@ -23,6 +24,20 @@ type DefaultConfig struct {
 	Model    string        `yaml:"model"`
 	Quality  QualityConfig `yaml:"quality"`
 	LogLevel string        `yaml:"log_level"`
+}
+
+func (c DefaultConfig) GetLogLevel() slog.Level {
+	switch c.LogLevel {
+	case "debug":
+		return slog.LevelDebug
+	case "info":
+		return slog.LevelInfo
+	case "warn":
+		return slog.LevelWarn
+	case "error":
+		return slog.LevelError
+	}
+	return slog.LevelInfo
 }
 
 // QualityConfig represents quality settings
