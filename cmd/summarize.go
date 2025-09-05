@@ -13,6 +13,7 @@ import (
 	"github.com/koooyooo/mdai/config"
 	"github.com/koooyooo/mdai/controller"
 	"github.com/openai/openai-go"
+	"github.com/openai/openai-go/option"
 	"github.com/spf13/cobra"
 )
 
@@ -38,7 +39,8 @@ func init() {
 }
 
 func summarize(args []string, logger *slog.Logger) error {
-	controller := controller.NewOpenAIController(os.Getenv("OPENAI_API_KEY"), logger)
+	client := openai.NewClient(option.WithAPIKey(os.Getenv("OPENAI_API_KEY")))
+	controller := controller.NewOpenAIController(&client, "gpt-4o-mini", logger)
 
 	if len(args) == 0 {
 		return fmt.Errorf("path is required")
