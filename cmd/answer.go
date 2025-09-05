@@ -47,7 +47,7 @@ func answer(args []string, logger *slog.Logger) error {
 	}
 
 	client := openai.NewClient(option.WithAPIKey(os.Getenv("OPENAI_API_KEY")))
-	controller := controller.NewOpenAIController(&client, "gpt-4o-mini", logger)
+	controller := controller.NewOpenAIController(&client, cfg.Default.Model, logger)
 
 	if len(args) == 0 {
 		return fmt.Errorf("path is required")
