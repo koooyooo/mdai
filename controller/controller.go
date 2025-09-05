@@ -83,6 +83,11 @@ func (c *OpenAIController) ControlStreaming(sysMsg, usrMsg string, quality confi
 
 		if content, ok := acc.JustFinishedContent(); ok {
 			c.logger.Debug("Content stream finished:", "content", content)
+			costInfo, err := models.CalculateCostString(c.modelID, acc.Usage)
+			if err != nil {
+				return fmt.Errorf("cost calculation error: %v", err)
+			}
+			c.logger.Info("cost information", "costInfo", costInfo)
 		}
 
 		// if using tool calls
