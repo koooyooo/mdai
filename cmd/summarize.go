@@ -25,10 +25,11 @@ var summarizeCmd = &cobra.Command{
 The summarized content will be saved to a new file with "_sum" suffix.
 For example, if the input file is "document.md", the output will be "document_sum.md".`,
 	Run: func(cmd *cobra.Command, args []string) {
+		cfg := config.GetInstance().GetConfig()
 		logger := slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
-			Level: slog.LevelInfo,
+			Level: cfg.Default.GetLogLevel().Level(),
 		}))
-		if err := summarize(args, logger); err != nil {
+		if err := summarize(cfg, args, logger); err != nil {
 			logger.Error("fail in calling summarize", "error", err)
 		}
 	},
@@ -38,13 +39,7 @@ func init() {
 	rootCmd.AddCommand(summarizeCmd)
 }
 
-func summarize(args []string, logger *slog.Logger) error {
-	cfg, err := config.LoadConfig()
-	if err != nil {
-		logger.Warn("failed to load config, using defaults", "error", err)
-		// Use default configuration if error occurs
-		cfg = config.GetDefaultConfig()
-	}
+func summarize(cfg config.Config, args []string, logger *slog.Logger) error {
 	client := openai.NewClient(option.WithAPIKey(os.Getenv("OPENAI_API_KEY")))
 	controller := controller.NewOpenAIController(&client, cfg.Default.Model, logger)
 
@@ -70,14 +65,6 @@ func summarize(args []string, logger *slog.Logger) error {
 	content, err := loadContent(path)
 	if err != nil {
 		return fmt.Errorf("fail in loading content: %v", err)
-	}
-
-	// Load configuration file
-	cfg, err := config.LoadConfig()
-	if err != nil {
-		logger.Warn("failed to load config, using defaults", "error", err)
-		// Use default configuration if error occurs
-		cfg = config.GetDefaultConfig()
 	}
 
 	// Get system message from configuration

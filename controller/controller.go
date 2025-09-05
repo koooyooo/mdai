@@ -65,13 +65,25 @@ func (c *OpenAIController) Control(sysMsg, usrMsg string, quality config.Quality
 }
 
 func (c *OpenAIController) ControlStreaming(sysMsg, usrMsg string, quality config.QualityConfig, completionFunc func(res openai.ChatCompletionChunk) error) error {
+	// Use default values if configuration values are 0
+	maxTokens := quality.MaxTokens
+	temperature := quality.Temperature
+	if maxTokens == 0 {
+		maxTokens = models.DefaultMaxTokens
+	}
+	if temperature == 0.0 {
+		temperature = models.DefaultTemperature
+	}
+
 	stream := c.client.Chat.Completions.NewStreaming(context.Background(), openai.ChatCompletionNewParams{
 		Messages: []openai.ChatCompletionMessageParamUnion{
 			openai.SystemMessage(sysMsg),
 			openai.UserMessage(usrMsg),
 		},
-		Seed:  openai.Int(0),
-		Model: c.modelID,
+		MaxTokens:   openai.Int(int64(maxTokens)),
+		Temperature: openai.Float(temperature),
+		Seed:        openai.Int(0),
+		Model:       c.modelID,
 	})
 
 	// optionally, an accumulator helper can be used
@@ -79,6 +91,7 @@ func (c *OpenAIController) ControlStreaming(sysMsg, usrMsg string, quality confi
 
 	for stream.Next() {
 		chunk := stream.Current()
+		c.logger.Debug("received chunk", "chunk", chunk)
 		acc.AddChunk(chunk)
 
 		if content, ok := acc.JustFinishedContent(); ok {
@@ -103,5 +116,14 @@ func (c *OpenAIController) ControlStreaming(sysMsg, usrMsg string, quality confi
 	if stream.Err() != nil {
 		return stream.Err()
 	}
+
+	// TODO: Add cost calculation for streaming mode
+	// costInfo, err := models.CalculateCostString(c.modelID, acc.Usage)
+	// if err != nil {
+	// 	return fmt.Errorf("cost calculation error: %v", err)
+	// }
+	// c.logger.Info("cost information", "costInfo", costInfo)
+	c.logger.Info("cost information", "costInfo", "cost calculation is not supported for streaming mode")
+
 	return nil
 }

@@ -3,6 +3,7 @@ package config
 import (
 	"bytes"
 	"fmt"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"text/template"
@@ -20,9 +21,24 @@ type Config struct {
 
 // DefaultConfig represents the default configuration
 type DefaultConfig struct {
-	Model    string        `yaml:"model"`
-	Quality  QualityConfig `yaml:"quality"`
-	LogLevel string        `yaml:"log_level"`
+	Model         string        `yaml:"model"`
+	Quality       QualityConfig `yaml:"quality"`
+	LogLevel      string        `yaml:"log_level"`
+	DisableStream bool          `yaml:"disable_stream"`
+}
+
+func (c DefaultConfig) GetLogLevel() slog.Level {
+	switch c.LogLevel {
+	case "debug":
+		return slog.LevelDebug
+	case "info":
+		return slog.LevelInfo
+	case "warn":
+		return slog.LevelWarn
+	case "error":
+		return slog.LevelError
+	}
+	return slog.LevelInfo
 }
 
 // QualityConfig represents quality settings
@@ -113,7 +129,8 @@ func GetDefaultConfig() *Config {
 				MaxTokens:   2000,
 				Temperature: 0.7,
 			},
-			LogLevel: "info",
+			LogLevel:      "info",
+			DisableStream: false,
 		},
 		Answer: AnswerConfig{
 			SystemMessage: `You are a helpful and detailed assistant. When answering questions based on the given context, please follow these guidelines:
