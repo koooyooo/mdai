@@ -37,7 +37,7 @@ var answerCmd = &cobra.Command{
 var nonStream bool
 
 func init() {
-	answerCmd.Flags().BoolVarP(&nonStream, "nonstream", "ns", false, "Disable streaming output (enables cost calculation)")
+	answerCmd.Flags().BoolVarP(&nonStream, "nonstream", "n", false, "Disable streaming output (enables cost calculation)")
 	rootCmd.AddCommand(answerCmd)
 }
 
