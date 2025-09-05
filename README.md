@@ -24,6 +24,58 @@ This is a CLI tool that allows you to ask questions about the contents of a Mark
 
 For detailed installation and setup instructions, please refer to [INSTALL.md](INSTALL.md).
 
+## 🛠️ Quick Install
+
+### Using `go install` (Recommended)
+
+```bash
+go install github.com/koooyooo/mdai@latest
+```
+
+### Setting the OpenAI API Key
+
+```bash
+# macOS/Linux
+export OPENAI_API_KEY="your-api-key-here"
+
+# Windows
+set OPENAI_API_KEY=your-api-key-here
+```
+
+For more detailed installation options and troubleshooting, please refer to [INSTALL.md](INSTALL.md).
+
+## ⚙️ Configuration
+
+The configuration file is located at `~/.mdai/config.yml`. You can initialize it with:
+
+```bash
+mdai init
+```
+
+### Key Configuration Items
+
+```yaml
+default:
+  model: gpt-4o-mini-2024-07-18   # AI model to use
+  quality:
+    max_tokens: 2000         # Maximum number of tokens for response
+    temperature: 0.7         # Temperature setting for creativity (0.0-2.0)
+  log_level: info            # Logging level (debug/info/warn/error)
+
+answer:
+  system_message: ""         # Custom system message for answer command
+  target_chars: 500         # Target response length in characters
+
+summarize:
+  system_message: ""         # Custom system message for summarize command
+  target_chars: 500         # Target response length in characters
+
+translate:
+  system_message: ""         # Custom system message for translate command
+```
+
+For a complete configuration example, see `cmd/config.sample.yml`.
+
 ## 📖 Usage
 
 ### Basic Usage
@@ -113,7 +165,7 @@ The translation results will be saved as `ai_learning_en.md` and `ai_learning_ja
 
 mdai automatically calculates API usage costs and displays them in the logs.
 
-**Note**: Currently, the default model being used is GPT-4o-mini. Please check the [OpenAI pricing page](https://openai.com/pricing) for current model prices.
+**Note**: Currently, the default model being used is gpt-4o-mini-2024-07-18. Please check the [OpenAI pricing page](https://openai.com/pricing) for current model prices.
 
 ## 🏗️ Project Structure
 

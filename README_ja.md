@@ -22,7 +22,59 @@ Markdownファイルの内容をAIに質問し、回答を自動で追記するC
     - **必須**: `OPENAI_API_KEY`環境変数を設定してください
     - see: https://platform.openai.com/api-keys
 
-詳細なインストールとセットアップ手順は [INSTALL.md](INSTALL.md) を参照してください。
+詳細なインストールとセットアップ手順は [INSTALL_ja.md](INSTALL_ja.md) を参照してください。
+
+## 🛠️ クイックインストール
+
+### go installを使用（推奨）
+
+```bash
+go install github.com/koooyooo/mdai@latest
+```
+
+### OpenAI APIキーの設定
+
+```bash
+# macOS/Linux
+export OPENAI_API_KEY="your-api-key-here"
+
+# Windows
+set OPENAI_API_KEY=your-api-key-here
+```
+
+より詳細なインストールオプションやトラブルシューティングについては [INSTALL_ja.md](INSTALL_ja.md) を参照してください。
+
+## ⚙️ 設定
+
+設定ファイルは `~/.mdai/config.yml` に配置されます。以下のコマンドで初期化できます：
+
+```bash
+mdai init
+```
+
+### 主な設定項目
+
+```yaml
+default:
+  model: gpt-4o-mini-2024-07-18   # 使用するAIモデル
+  quality:
+    max_tokens: 2000         # 最大トークン数
+    temperature: 0.7         # 温度（創造性）設定 (0.0-2.0)
+  log_level: info            # ログレベル（debug/info/warn/error）
+
+answer:
+  system_message: ""         # answerコマンド用のカスタムシステムメッセージ
+  target_chars: 500         # 応答の目標文字数
+
+summarize:
+  system_message: ""         # summarizeコマンド用のカスタムシステムメッセージ
+  target_chars: 500         # 応答の目標文字数
+
+translate:
+  system_message: ""         # translateコマンド用のカスタムシステムメッセージ
+```
+
+完全な設定例については `cmd/config.sample.yml` を参照してください。
 
 ## 📖 使用方法
 
@@ -95,6 +147,7 @@ mdai answer ai_learning.md
 ここに既存の内容があれば、AIの回答が追記されます。
 
 AIを学ぶにあたってのコツはいくつかあります。まず、基礎知識をしっかりと固めることが重要です...
+```
 
 ### 翻訳の例
 
@@ -107,13 +160,12 @@ mdai translate ai_learning.md ja
 ```
 
 翻訳結果は `ai_learning_en.md`、`ai_learning_ja.md` として保存されます。
-```
 
 ## 💰 コスト計算
 
 mdaiは自動的にAPI使用コストを計算し、ログに表示します。
 
-**注意**: 現在の実装では、GPT-4o-miniがデフォルトモデルとして使用されています。現在のモデル価格については[OpenAI料金ページ](https://openai.com/pricing)をご確認ください。
+**注意**: 現在の実装では、gpt-4o-mini-2024-07-18がデフォルトモデルとして使用されています。現在のモデル価格については[OpenAI料金ページ](https://openai.com/pricing)をご確認ください。
 
 
 ## 🏗️ プロジェクト構造
