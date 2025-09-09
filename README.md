@@ -7,7 +7,13 @@
 
 This is a CLI tool that allows you to ask questions about the contents of a Markdown file to an AI and automatically append the answers.
 
-<img src="image/mdai.gif" width="800"/>
+- works like a Local version of Notion AI
+- works on any platform (Windows, macOS, Linux)
+- works on any Markdown editor (VSCode, Cursor, Typora, etc.)
+- works on any language
+- customizable configuration file
+
+<img src="image/mdai.gif"/>
 
 ## 🚀 Features
 

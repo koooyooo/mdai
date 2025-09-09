@@ -7,7 +7,13 @@
 
 Markdownファイルの内容をAIに質問し、回答を自動で追記するCLIツールです。
 
-<img src="image/mdai.gif" width="800"/>
+- Notion AIのローカル版の様な利便性
+- あらゆるプラットフォーム（Windows、macOS、Linux）で動作
+- あらゆるMarkdownエディタ（VSCode、Cursor、Typoraなど）で動作
+- あらゆる言語で動作
+- カスタマイズ可能な設定ファイル
+
+<img src="image/mdai.gif"/>
 
 ## 🚀 機能
 
