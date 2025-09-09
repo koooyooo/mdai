@@ -13,10 +13,10 @@ import (
 
 // Config represents the structure of the configuration file
 type Config struct {
-	Default   DefaultConfig   `yaml:"default"`
-	Answer    AnswerConfig    `yaml:"answer"`
-	Summarize SummarizeConfig `yaml:"summarize"`
-	Translate TranslateConfig `yaml:"translate"`
+	Default   DefaultConfig           `yaml:"default"`
+	Answer    map[string]AnswerConfig `yaml:"answer"`
+	Summarize SummarizeConfig         `yaml:"summarize"`
+	Translate TranslateConfig         `yaml:"translate"`
 }
 
 // DefaultConfig represents the default configuration
@@ -132,8 +132,9 @@ func GetDefaultConfig() *Config {
 			LogLevel:      "info",
 			DisableStream: false,
 		},
-		Answer: AnswerConfig{
-			SystemMessage: `You are a helpful and detailed assistant. When answering questions based on the given context, please follow these guidelines:
+		Answer: map[string]AnswerConfig{
+			"default": {
+				SystemMessage: `You are a helpful and detailed assistant. When answering questions based on the given context, please follow these guidelines:
 
 1. Answer in the same language as the question
 2. Make full use of the context information
@@ -141,12 +142,13 @@ func GetDefaultConfig() *Config {
 4. Ensure answers are appropriately long and content-rich
 5. Provide insights that deepen the questioner's understanding
 6. Prefer rich markdown formatting`,
-			UserMessage: UserMessageTemplate{
-				Template: `Context: {{.Context}}
+				UserMessage: UserMessageTemplate{
+					Template: `Context: {{.Context}}
 
 Question: {{.Question}}`,
+				},
+				TargetLength: 500,
 			},
-			TargetLength: 500,
 		},
 		Summarize: SummarizeConfig{
 			SystemMessage: `You are a helpful and detailed assistant specialized in summarizing markdown documents. When summarizing content, please follow these guidelines:
@@ -224,4 +226,24 @@ func (c *Config) GetTemperature() float64 {
 		return 0.7
 	}
 	return c.Default.Quality.Temperature
+}
+
+// GetAnswerConfig returns the answer configuration for the given key
+// If key is empty or not found, returns the "default" configuration
+func (c *Config) GetAnswerConfig(key string) AnswerConfig {
+	if key == "" {
+		key = "default"
+	}
+
+	if answerConfig, exists := c.Answer[key]; exists {
+		return answerConfig
+	}
+
+	// Fallback to default if key doesn't exist
+	if defaultConfig, exists := c.Answer["default"]; exists {
+		return defaultConfig
+	}
+
+	// Return empty config if nothing exists
+	return AnswerConfig{}
 }

@@ -7,6 +7,8 @@
 
 This is a CLI tool that allows you to ask questions about the contents of a Markdown file to an AI and automatically append the answers.
 
+<img src="image/mdai.gif" width="800"/>
+
 ## 🚀 Features
 
 - **AI Questions**: Extracts the last quoted part from the Markdown file to ask the AI and automatically appends the answer to the original file

@@ -8,3 +8,9 @@ install: clean
 
 run:
 	@ go run mdai.go $(FILE)
+
+less-config:
+	@ less ~/.mdai/config.yml
+
+rm-config:
+	@ rm -f ~/.mdai/config.yml

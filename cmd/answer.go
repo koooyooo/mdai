@@ -51,7 +51,8 @@ func answer(cfg config.Config, args []string, logger *slog.Logger) error {
 	path := args[0]
 
 	// Get system message from configuration
-	sysMsg := cfg.Answer.SystemMessage
+	answerConfig := cfg.GetAnswerConfig("default")
+	sysMsg := answerConfig.SystemMessage
 
 	// Load file content
 	content, err := loadContent(path)
@@ -66,7 +67,7 @@ func answer(cfg config.Config, args []string, logger *slog.Logger) error {
 	}
 
 	// Get user message from configuration and apply template processing
-	userMsg, err := cfg.Answer.UserMessage.Apply(map[string]string{
+	userMsg, err := answerConfig.UserMessage.Apply(map[string]string{
 		"Question": lastQuote,
 		"Context":  otherContents,
 	})
@@ -79,15 +80,15 @@ func answer(cfg config.Config, args []string, logger *slog.Logger) error {
 	temperature := cfg.Default.Quality.Temperature
 
 	// Add character count instruction to system message
-	if cfg.Answer.TargetLength > 0 {
-		sysMsg += fmt.Sprintf("\n\n**Answer Length Guidance**: Please provide an answer of approximately %d characters.", cfg.Answer.TargetLength)
+	if answerConfig.TargetLength > 0 {
+		sysMsg += fmt.Sprintf("\n\n**Answer Length Guidance**: Please provide an answer of approximately %d characters.", answerConfig.TargetLength)
 	}
 
 	// Log configuration values
 	logger.Info("using configuration",
 		"maxTokens", maxTokens,
 		"temperature", temperature,
-		"targetLength", cfg.Answer.TargetLength)
+		"targetLength", answerConfig.TargetLength)
 
 	f, err := os.OpenFile(path, os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {

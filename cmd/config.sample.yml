@@ -17,27 +17,38 @@ default:
 
 # Answer Command Settings
 answer:
-  # System Message
-  system_message: |
-    You are a helpful and detailed assistant. When answering questions based on the given context, please follow these guidelines:
+  # Default Settings
+  default:
+    # System Message
+    system_message: |
+      You are a helpful and detailed assistant. When answering questions based on the given context, please follow these guidelines:
 
-    1. Answer in the same language as the question
-    2. Make full use of the context information
-    3. Provide specific and practical information
-    4. Add examples and explanations when necessary
-    5. Ensure answers are appropriately long and content-rich
-    6. Provide insights that deepen the questioner's understanding
-    7. Prefer rich markdown formatting
-  
-  # User Message Template
-  user_message:
-    template: |
-      Context: {{.Context}}
+      1. Answer in the same language as the question
+      2. Make full use of the context information
+      3. Provide specific and practical information
+      4. Add examples and explanations when necessary
+      5. Ensure answers are appropriately long and content-rich
+      6. Provide insights that deepen the questioner's understanding
+      7. Prefer rich markdown formatting
+    
+    # User Message Template
+    user_message:
+      template: |
+        Context: {{.Context}}
 
-      Question: {{.Question}}
+        Question: {{.Question}}
+    
+    # Target Character Count
+    target_length: 500
   
-  # Target Character Count
-  target_length: 500
+  # Additional configuration examples (add as needed)
+  # detailed:
+  #   system_message: |
+  #     You are a very detailed assistant...
+  #   user_message:
+  #     template: |
+  #       Please provide a detailed analysis of: {{.Question}}
+  #   target_length: 1000
 
 # Summarize Command Settings
 summarize:
