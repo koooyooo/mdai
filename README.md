@@ -5,23 +5,26 @@
 # mark d'AI
 /mɑːrk di: aɪ/
 
-This is a CLI tool that allows you to ask questions about the contents of a Markdown file to an AI and automatically append the answers.
+AI-powered assistant for **Markdown workflows**.  
+Summarize, translate, and enrich your notes directly in `.md` files — cross-platform, lightweight, and developer-friendly.
 
-- works like a Local version of Notion AI
-- works on any platform (Windows, macOS, Linux)
-- works on any Markdown editor (VSCode, Cursor, Typora, etc.)
-- works on any language
-- customizable configuration file
+---
+
+### ✨ Key Features
+- **AI Questions** – Extracts the last quoted part from a Markdown file, asks the AI, and appends the answer inline
+  - (interactive use available)
+- **AI Summary** – Generates concise summaries of Markdown files and saves them separately  
+- **AI Translation** – Translates Markdown files into a specified language and saves the results  
+- **Cost Calculation** – Automatically calculates OpenAI API usage costs  
+- **Cross-Platform** – Runs on Windows, macOS, and Linux  
+
+---
+
+### 💡 Why mdai?
+Unlike generic AI CLI tools, **mdai is built specifically for Markdown documents**.  
+This makes it ideal for note-taking, documentation, and research logs where Markdown is the standard.
 
 <img src="image/mdai.gif"/>
-
-## 🚀 Features
-
-- **AI Questions**: Extracts the last quoted part from the Markdown file to ask the AI and automatically appends the answer to the original file
-- **AI Summary**: Summarizes Markdown files (saves to a separate file)
-- **AI Translation**: Translates Markdown files to a specified language (saves to a separate file)
-- **Cost Calculation**: Automatically calculates the usage cost of the OpenAI API
-- **Cross-Platform**: Works on Windows, macOS, and Linux
 
 ## 📋 Prerequisites
 
