@@ -7,6 +7,8 @@
 
 Markdownファイルの内容をAIに質問し、回答を自動で追記するCLIツールです。
 
+<img src="image/mdai.gif" width="800"/>
+
 ## 🚀 機能
 
 - **AI質問**: Markdownファイルの最後の引用部分を抽出してAIに質問。回答は元のファイルに自動で追記
