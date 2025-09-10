@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/signal"
 	"strings"
+	"sync"
 	"syscall"
 	"time"
 
@@ -68,9 +69,13 @@ func executeAppend(cfg config.Config, appendConfig *AppendConfig, path string, e
 	}
 
 	// Prepare messages based on operation type
-	sysMsg, userMsg, err := prepareAppendMessages(cfg, appendConfig, content, extraArgs)
+	success, sysMsg, userMsg, err := prepareAppendMessages(cfg, appendConfig, content, extraArgs)
 	if err != nil {
 		return err
+	}
+
+	if !success {
+		return nil
 	}
 
 	// Execute append operation
@@ -130,7 +135,7 @@ func validateAppendFile(path string) error {
 	return nil
 }
 
-func prepareAppendMessages(cfg config.Config, appendConfig *AppendConfig, content string, extraArgs []string) (string, string, error) {
+func prepareAppendMessages(cfg config.Config, appendConfig *AppendConfig, content string, extraArgs []string) (bool, string, string, error) {
 	sysMsg := appendConfig.SystemMessage
 
 	// Prepare template variables
@@ -141,9 +146,13 @@ func prepareAppendMessages(cfg config.Config, appendConfig *AppendConfig, conten
 	// Add operation-specific template variables based on extraArgs
 	// For answer operation, extract last quote and other content
 	if len(extraArgs) == 0 { // answer operation doesn't have extra args
-		lastQuote, otherContents, err := file.LoadLastQuote(content)
+		success, lastQuote, otherContents, err := file.LoadLastQuote(content)
 		if err != nil {
-			return "", "", fmt.Errorf("fail in loading last quote: %v", err)
+			return false, "", "", fmt.Errorf("fail in loading last quote: %v", err)
+		}
+		if !success {
+			// 引用が見つからない場合は処理をキャンセル
+			return false, "", "", nil
 		}
 		templateVars["Question"] = lastQuote
 		templateVars["Context"] = otherContents
@@ -152,10 +161,10 @@ func prepareAppendMessages(cfg config.Config, appendConfig *AppendConfig, conten
 	// Apply template processing
 	userMsg, err := appendConfig.UserMessage.Apply(templateVars)
 	if err != nil {
-		return "", "", fmt.Errorf("fail in creating user message: %v", err)
+		return false, "", "", fmt.Errorf("fail in creating user message: %v", err)
 	}
 
-	return sysMsg, userMsg, nil
+	return true, sysMsg, userMsg, nil
 }
 
 type WatchConfig struct {
@@ -182,22 +191,50 @@ func WatchAndAppend(cfg config.Config, watchConfig *WatchConfig, logger *slog.Lo
 
 	logger.Info("file watching started", "file", watchConfig.FilePath, "operation", watchConfig.Operation)
 	logger.Info("press Ctrl+C to exit")
+	logger.Info("")
+
+	working := false
+	var mu sync.RWMutex
+	cycleCount := 0
+	maxCycles := 20
 
 	for {
 		select {
 		case event := <-watcher.Events:
 			if event.Op&fsnotify.Write == fsnotify.Write {
-				logger.Info("file changed", "file", event.Name)
-				go func() {
-					time.Sleep(time.Duration(watchConfig.DebounceMs) * time.Millisecond)
-					logger.Info("starting append operation")
-					err := Append(cfg, watchConfig.Operation, watchConfig.FilePath, watchConfig.ExtraArgs, logger)
-					if err != nil {
-						logger.Error("append failed", "error", err)
-					} else {
-						logger.Info("append operation completed")
-					}
-				}()
+				mu.RLock()
+				if working {
+					mu.RUnlock()
+					continue
+				} else {
+					mu.RUnlock()
+				}
+
+				// サイクルカウントをチェック
+				cycleCount++
+				if cycleCount > maxCycles {
+					logger.Info("maximum cycles reached", "cycles", maxCycles)
+					logger.Info("exiting...")
+					return nil
+				}
+
+				mu.Lock()
+				working = true
+				mu.Unlock()
+
+				logger.Info("file changed", "file", event.Name, "cycle", cycleCount)
+				time.Sleep(time.Duration(watchConfig.DebounceMs) * time.Millisecond)
+				logger.Info("starting append operation")
+				err := Append(cfg, watchConfig.Operation, watchConfig.FilePath, watchConfig.ExtraArgs, logger)
+				if err != nil {
+					logger.Error("append failed", "error", err)
+				} else {
+					logger.Info("append operation completed")
+					logger.Info("")
+				}
+				mu.Lock()
+				working = false
+				mu.Unlock()
 			}
 		case err := <-watcher.Errors:
 			logger.Error("watcher error", "error", err)
