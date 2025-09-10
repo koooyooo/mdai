@@ -107,7 +107,7 @@ func executeTransform(cfg config.Config, transformConfig *TransformConfig, path 
 		"maxTokens", cfg.Default.Quality.MaxTokens,
 		"temperature", cfg.Default.Quality.Temperature)
 
-	openAIController.Control(sysMsg, userMsg, cfg.Default.Quality, func(completion *openai.ChatCompletion) error {
+	if err := openAIController.Control(sysMsg, userMsg, cfg.Default.Quality, func(completion *openai.ChatCompletion) error {
 		result := completion.Choices[0].Message.Content
 
 		// Save result to file
@@ -119,7 +119,9 @@ func executeTransform(cfg config.Config, transformConfig *TransformConfig, path 
 			"input", path,
 			"output", outputPath)
 		return nil
-	})
+	}); err != nil {
+		return fmt.Errorf("fail in executing transformation: %v", err)
+	}
 
 	return nil
 }
