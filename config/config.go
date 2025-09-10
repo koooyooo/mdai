@@ -14,9 +14,11 @@ import (
 // Config represents the structure of the configuration file
 type Config struct {
 	Default   DefaultConfig           `yaml:"default"`
-	Answer    map[string]AnswerConfig `yaml:"answer"`
-	Summarize SummarizeConfig         `yaml:"summarize"`
-	Translate TranslateConfig         `yaml:"translate"`
+	Answer    map[string]AnswerConfig `yaml:"answer"` // Legacy
+	Transform TransformConfig         `yaml:"transform"`
+	Append    AppendConfig            `yaml:"append"`
+	Summarize SummarizeConfig         `yaml:"summarize"` // Legacy
+	Translate TranslateConfig         `yaml:"translate"` // Legacy
 }
 
 // DefaultConfig represents the default configuration
@@ -45,6 +47,16 @@ func (c DefaultConfig) GetLogLevel() slog.Level {
 type QualityConfig struct {
 	MaxTokens   int     `yaml:"max_tokens"`
 	Temperature float64 `yaml:"temperature"`
+}
+
+// TransformConfig represents the configuration for the transform command
+type TransformConfig struct {
+	Operations map[string]OperationConfig `yaml:"operations"`
+}
+
+// AppendConfig represents the configuration for the append command
+type AppendConfig struct {
+	Operations map[string]OperationConfig `yaml:"operations"`
 }
 
 // AnswerConfig represents the configuration for the answer command
@@ -80,17 +92,36 @@ func (t *UserMessageTemplate) Apply(vars map[string]string) (string, error) {
 	return buf.String(), nil
 }
 
+// ArgsConfig represents argument validation configuration
+type ArgsConfig struct {
+	MinCount int `yaml:"min_count"`
+	MaxCount int `yaml:"max_count"`
+}
+
+// OperationConfig represents the configuration for a specific transform operation
+type OperationConfig struct {
+	SystemMessage string              `yaml:"system_message"`
+	UserMessage   UserMessageTemplate `yaml:"user_message"`
+	TargetLength  int                 `yaml:"target_length"`
+	Suffix        UserMessageTemplate `yaml:"suffix"`
+	Args          ArgsConfig          `yaml:"args"`
+}
+
 // SummarizeConfig represents the configuration for the summarize command
 type SummarizeConfig struct {
 	SystemMessage string              `yaml:"system_message"`
 	UserMessage   UserMessageTemplate `yaml:"user_message"`
 	TargetLength  int                 `yaml:"target_length"`
+	Suffix        UserMessageTemplate `yaml:"suffix"`
+	Args          ArgsConfig          `yaml:"args"`
 }
 
 // TranslateConfig represents the configuration for the translate command
 type TranslateConfig struct {
 	SystemMessage string              `yaml:"system_message"`
 	UserMessage   UserMessageTemplate `yaml:"user_message"`
+	Suffix        UserMessageTemplate `yaml:"suffix"`
+	Args          ArgsConfig          `yaml:"args"`
 }
 
 // LoadConfig loads the configuration file
@@ -148,6 +179,91 @@ func GetDefaultConfig() *Config {
 Question: {{.Question}}`,
 				},
 				TargetLength: 500,
+			},
+		},
+		Transform: TransformConfig{
+			Operations: map[string]OperationConfig{
+				"summarize": {
+					SystemMessage: `You are a helpful and detailed assistant specialized in summarizing markdown documents. When summarizing content, please follow these guidelines:
+
+1. Provide a comprehensive yet concise summary of the main content
+2. Maintain the key points and important information
+3. Use clear and organized structure with markdown formatting
+4. Include main headings and subheadings when relevant
+5. Preserve important details, examples, and references
+6. Make the summary easy to read and understand
+7. Use appropriate markdown elements (headers, lists, emphasis, etc.)
+8. Keep the summary appropriately long - not too brief, not too verbose
+9. Focus on the most valuable and actionable information
+10. Maintain the original tone and style when appropriate`,
+					UserMessage: UserMessageTemplate{
+						Template: `Please provide a comprehensive summary of the following markdown content:
+
+{{.Content}}
+
+Please create a well-structured summary that captures the essence and key points of this content.`,
+					},
+					TargetLength: 800,
+					Suffix: UserMessageTemplate{
+						Template: "_sum",
+					},
+					Args: ArgsConfig{
+						MinCount: 0,
+						MaxCount: 0,
+					},
+				},
+				"translate": {
+					SystemMessage: `You are a professional translator specialized in translating markdown documents. When translating content, please follow these guidelines:
+
+1. Translate the content to the specified target language accurately and naturally
+2. Maintain the original markdown formatting and structure
+3. Preserve all headings, lists, code blocks, and formatting elements
+4. Keep the same tone and style as the original document
+5. Ensure technical terms are translated appropriately for the target language
+6. Maintain the document's readability and flow in the target language
+7. Preserve any links, references, or citations
+8. Keep the same level of detail and information as the original
+9. Use appropriate language conventions for the target language
+10. Ensure the translation sounds natural to native speakers of the target language`,
+					UserMessage: UserMessageTemplate{
+						Template: `Please translate the following content to {{.TargetLanguage}}:
+
+{{.Content}}
+
+Please maintain the original markdown formatting and structure while ensuring the translation is accurate and natural.`,
+					},
+					Suffix: UserMessageTemplate{
+						Template: "_{{.Arg0}}",
+					},
+					Args: ArgsConfig{
+						MinCount: 1,
+						MaxCount: 1,
+					},
+				},
+			},
+		},
+		Append: AppendConfig{
+			Operations: map[string]OperationConfig{
+				"answer": {
+					SystemMessage: `You are a helpful and detailed assistant. When answering questions based on the given context, please follow these guidelines:
+
+1. Answer in the same language as the question
+2. Make full use of the context information
+3. Add examples and explanations when necessary
+4. Ensure answers are appropriately long and content-rich
+5. Provide insights that deepen the questioner's understanding
+6. Prefer rich markdown formatting`,
+					UserMessage: UserMessageTemplate{
+						Template: `Context: {{.Context}}
+
+Question: {{.Question}}`,
+					},
+					TargetLength: 500,
+					Args: ArgsConfig{
+						MinCount: 0,
+						MaxCount: 0,
+					},
+				},
 			},
 		},
 		Summarize: SummarizeConfig{

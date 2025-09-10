@@ -14,3 +14,6 @@ less-config:
 
 rm-config:
 	@ rm -f ~/.mdai/config.yml
+
+init: rm-config
+	@ mdai init

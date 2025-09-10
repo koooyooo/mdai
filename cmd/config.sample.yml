@@ -15,92 +15,112 @@ default:
   # Log Level
   log_level: "info"
 
-# Answer Command Settings
-answer:
-  # Default Settings
-  default:
-    # System Message
-    system_message: |
-      You are a helpful and detailed assistant. When answering questions based on the given context, please follow these guidelines:
+# Append Control Settings
+append:
+  # Operations map - each key represents an operation name
+  operations:
+    # Answer Operation
+    answer:
+      # System Message
+      system_message: |
+        You are a helpful and detailed assistant. When answering questions based on the given context, please follow these guidelines:
 
-      1. Answer in the same language as the question
-      2. Make full use of the context information
-      3. Provide specific and practical information
-      4. Add examples and explanations when necessary
-      5. Ensure answers are appropriately long and content-rich
-      6. Provide insights that deepen the questioner's understanding
-      7. Prefer rich markdown formatting
-    
-    # User Message Template
-    user_message:
-      template: |
-        Context: {{.Context}}
+        1. Answer in the same language as the question
+        2. Make full use of the context information
+        3. Add examples and explanations when necessary
+        4. Ensure answers are appropriately long and content-rich
+        5. Provide insights that deepen the questioner's understanding
+        6. Prefer rich markdown formatting
+      
+      # User Message Template
+      user_message:
+        template: |
+          Context: {{.Context}}
 
-        Question: {{.Question}}
-    
-    # Target Character Count
-    target_length: 500
-  
-  # Additional configuration examples (add as needed)
-  # detailed:
-  #   system_message: |
-  #     You are a very detailed assistant...
-  #   user_message:
-  #     template: |
-  #       Please provide a detailed analysis of: {{.Question}}
-  #   target_length: 1000
+          Question: {{.Question}}
+      
+      # Target Character Count
+      target_length: 500
+      
+      # Argument validation
+      args:
+        min_count: 0
+        max_count: 0
 
-# Summarize Command Settings
-summarize:
-  # System Message
-  system_message: |
-    You are a helpful and detailed assistant specialized in summarizing markdown documents. When summarizing content, please follow these guidelines:
+# Transform Control Settings
+transform:
+  # Operations map - each key represents an operation name
+  operations:
+    # Summarize Operation
+    summarize:
+      # System Message
+      system_message: |
+        You are a helpful and detailed assistant specialized in summarizing markdown documents. When summarizing content, please follow these guidelines:
 
-    1. Provide a comprehensive yet concise summary of the main content
-    2. Maintain the key points and important information
-    3. Use clear and organized structure with markdown formatting
-    4. Include main headings and subheadings when relevant
-    5. Preserve important details, examples, and references
-    6. Make the summary easy to read and understand
-    7. Use appropriate markdown elements (headers, lists, emphasis, etc.)
-    8. Keep the summary appropriately long - not too brief, not too verbose
-    9. Focus on the most valuable and actionable information
-    10. Maintain the original tone and style when appropriate
-  
-  # User Message Template
-  user_message:
-    template: |
-      Please provide a comprehensive summary of the following markdown content:
+        1. Answer in the same language as the question
+        2. Provide a comprehensive yet concise summary of the main content
+        3. Maintain the key points and important information
+        4. Use clear and organized structure with markdown formatting
+        5. Include main headings and subheadings when relevant
+        6. Preserve important details, examples, and references
+        7. Make the summary easy to read and understand
+        7. Use appropriate markdown elements (headers, lists, emphasis, etc.)
+        8. Keep the summary appropriately long - not too brief, not too verbose
+        9. Focus on the most valuable and actionable information
+        10. Maintain the original tone and style when appropriate
+      
+      # User Message Template
+      user_message:
+        template: |
+          Please provide a comprehensive summary of the following markdown content:
 
-      {{.Content}}
+          {{.Content}}
 
-      Please create a well-structured summary that captures the essence and key points of this content.
-  
-  # Target Character Count
-  target_length: 800
+          Please create a well-structured summary that captures the essence and key points of this content.
+      
+      # Target Character Count
+      target_length: 800
+      
+      # Output File Suffix Template
+      suffix:
+        template: "_sum"
+      
+      # Argument validation
+      args:
+        min_count: 0
+        max_count: 0
 
-# Translate Command Settings
-translate:
-  # System Message
-  system_message: |
-    You are a professional translator specialized in translating markdown documents. When translating content, please follow these guidelines:
+    # Translate Operation
+    translate:
+      # System Message
+      system_message: |
+        You are a professional translator specialized in translating markdown documents. When translating content, please follow these guidelines:
 
-    1. Translate the content to the specified target language accurately and naturally
-    2. Maintain the original markdown formatting and structure
-    3. Preserve all headings, lists, code blocks, and formatting elements
-    4. Keep the same tone and style as the original document
-    5. Ensure technical terms are translated appropriately for the target language
-    6. Maintain the document's readability and flow in the target language
-    7. Preserve any links, references, or citations
-    8. Keep the same level of detail and information as the original
-    9. Use appropriate language conventions for the target language
-    10. Ensure the translation sounds natural to native speakers of the target language
-  
-  # User Message Template
-  user_message:
-    template: |
-      Please translate the following content to {{.TargetLanguage}}:
+        1. Translate the content to the specified target language accurately and naturally
+        2. Maintain the original markdown formatting and structure
+        3. Preserve all headings, lists, code blocks, and formatting elements
+        4. Keep the same tone and style as the original document
+        5. Ensure technical terms are translated appropriately for the target language
+        6. Maintain the document's readability and flow in the target language
+        7. Preserve any links, references, or citations
+        8. Keep the same level of detail and information as the original
+        9. Use appropriate language conventions for the target language
+        10. Ensure the translation sounds natural to native speakers of the target language
+      
+      # User Message Template
+      user_message:
+        template: |
+          Please translate the following content to {{.TargetLanguage}}:
 
-      {{.Content}}
+          {{.Content}}
 
-      Please maintain the original markdown formatting and structure while ensuring the translation is accurate and natural.
+          Please maintain the original markdown formatting and structure while ensuring the translation is accurate and natural.
+      
+      # Output File Suffix Template (dynamic with language code)
+      suffix:
+        template: "_{{.Arg0}}"
+      
+      # Argument validation
+      args:
+        min_count: 1
+        max_count: 1
