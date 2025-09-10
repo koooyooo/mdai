@@ -42,3 +42,12 @@ func LoadFiles(path string) (map[string][]byte, error) {
 		return filePathContents, nil
 	}
 }
+
+// LoadContent loads the content of a file as a string
+func LoadContent(path string) (string, error) {
+	b, err := os.ReadFile(path)
+	if err != nil {
+		return "", err
+	}
+	return string(b), nil
+}

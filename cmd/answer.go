@@ -55,7 +55,7 @@ func answer(cfg config.Config, args []string, logger *slog.Logger) error {
 	sysMsg := answerConfig.SystemMessage
 
 	// Load file content
-	content, err := loadContent(path)
+	content, err := file.LoadContent(path)
 	if err != nil {
 		return fmt.Errorf("fail in loading content: %v", err)
 	}
@@ -120,12 +120,4 @@ func answer(cfg config.Config, args []string, logger *slog.Logger) error {
 		}
 		return nil
 	})
-}
-
-func loadContent(path string) (string, error) {
-	b, err := os.ReadFile(path)
-	if err != nil {
-		return "", err
-	}
-	return string(b), nil
 }
