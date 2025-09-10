@@ -101,7 +101,7 @@ func translate(cfg config.Config, args []string, logger *slog.Logger) error {
 		"temperature", temperature,
 		"targetLanguage", language)
 
-	controller.Control(sysMsg, userMsg, cfg.Default.Quality, func(completion *openai.ChatCompletion) error {
+	if err := controller.Control(sysMsg, userMsg, cfg.Default.Quality, func(completion *openai.ChatCompletion) error {
 		translatedContent := completion.Choices[0].Message.Content
 
 		// Save translation result to file
@@ -111,7 +111,9 @@ func translate(cfg config.Config, args []string, logger *slog.Logger) error {
 
 		logger.Info("translation created successfully", "input", path, "output", outputPath, "language", language)
 		return nil
-	})
+	}); err != nil {
+		return fmt.Errorf("fail in calling translate: %v", err)
+	}
 
 	return nil
 }

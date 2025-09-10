@@ -93,7 +93,7 @@ func summarize(cfg config.Config, args []string, logger *slog.Logger) error {
 		"temperature", temperature,
 		"targetLength", cfg.Summarize.TargetLength)
 
-	controller.Control(sysMsg, userMsg, cfg.Default.Quality, func(completion *openai.ChatCompletion) error {
+	if err := controller.Control(sysMsg, userMsg, cfg.Default.Quality, func(completion *openai.ChatCompletion) error {
 		summary := completion.Choices[0].Message.Content
 
 		// Save summary result to file
@@ -103,7 +103,9 @@ func summarize(cfg config.Config, args []string, logger *slog.Logger) error {
 
 		logger.Info("summary created successfully", "input", path, "output", outputPath)
 		return nil
-	})
+	}); err != nil {
+		return fmt.Errorf("fail in calling summarize: %v", err)
+	}
 
 	return nil
 }
