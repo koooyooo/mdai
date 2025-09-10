@@ -224,14 +224,12 @@ func WatchAndAppend(cfg config.Config, watchConfig *WatchConfig, logger *slog.Lo
 
 				logger.Info("file changed", "file", event.Name, "cycle", cycleCount)
 				time.Sleep(time.Duration(watchConfig.DebounceMs) * time.Millisecond)
-				logger.Info("starting append operation")
 				err := Append(cfg, watchConfig.Operation, watchConfig.FilePath, watchConfig.ExtraArgs, logger)
 				if err != nil {
 					logger.Error("append failed", "error", err)
-				} else {
-					logger.Info("append operation completed")
-					logger.Info("")
 				}
+				logger.Info("")
+
 				mu.Lock()
 				working = false
 				mu.Unlock()
