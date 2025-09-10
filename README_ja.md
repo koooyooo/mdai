@@ -8,6 +8,8 @@
 **Markdownワークフロー**向けのAI搭載アシスタント。  
 `.md`ファイル内で直接ノートの要約、翻訳、充実化を行います — クロスプラットフォーム、軽量、開発者フレンドリー。
 
+[![Go Test and Lint](https://github.com/koooyooo/mdai/actions/workflows/go-test-lint.yml/badge.svg)](https://github.com/koooyooo/mdai/actions/workflows/go-test-lint.yml)
+
 ---
 
 ### ✨ 主な機能
