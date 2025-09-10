@@ -16,14 +16,6 @@ import (
 	"github.com/openai/openai-go/option"
 )
 
-// TransformOperation represents the type of transformation to perform
-type TransformOperation string
-
-const (
-	OperationSummarize TransformOperation = "summarize"
-	OperationTranslate TransformOperation = "translate"
-)
-
 // TransformConfig holds configuration for a specific transformation
 type TransformConfig struct {
 	SystemMessage  string
@@ -33,7 +25,7 @@ type TransformConfig struct {
 }
 
 // Transform performs a transformation operation on a markdown file
-func Transform(cfg config.Config, operation TransformOperation, path string, extraArgs []string, logger *slog.Logger) error {
+func Transform(cfg config.Config, operation string, path string, extraArgs []string, logger *slog.Logger) error {
 	// Get operation configuration dynamically
 	opConfig, err := getOperationConfig(cfg, operation)
 	if err != nil {
@@ -57,9 +49,9 @@ func Transform(cfg config.Config, operation TransformOperation, path string, ext
 	return executeTransform(cfg, transformConfig, path, extraArgs, logger)
 }
 
-func getOperationConfig(cfg config.Config, operation TransformOperation) (config.OperationConfig, error) {
+func getOperationConfig(cfg config.Config, operation string) (config.OperationConfig, error) {
 	// Get operation configuration from map
-	opConfig, exists := cfg.Transform.Operations[string(operation)]
+	opConfig, exists := cfg.Transform.Operations[operation]
 	if !exists {
 		return config.OperationConfig{}, fmt.Errorf("unsupported operation: %s", operation)
 	}

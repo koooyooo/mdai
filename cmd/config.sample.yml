@@ -15,33 +15,39 @@ default:
   # Log Level
   log_level: "info"
 
-# Answer Command Settings
-answer:
-  # Default Settings
-  default:
-    # System Message
-    system_message: |
-      You are a helpful and detailed assistant. When answering questions based on the given context, please follow these guidelines:
+# Append Control Settings
+append:
+  # Operations map - each key represents an operation name
+  operations:
+    # Answer Operation
+    answer:
+      # System Message
+      system_message: |
+        You are a helpful and detailed assistant. When answering questions based on the given context, please follow these guidelines:
 
-      1. Answer in the same language as the question
-      2. Make full use of the context information
-      3. Provide specific and practical information
-      4. Add examples and explanations when necessary
-      5. Ensure answers are appropriately long and content-rich
-      6. Provide insights that deepen the questioner's understanding
-      7. Prefer rich markdown formatting
-    
-    # User Message Template
-    user_message:
-      template: |
-        Context: {{.Context}}
+        1. Answer in the same language as the question
+        2. Make full use of the context information
+        3. Add examples and explanations when necessary
+        4. Ensure answers are appropriately long and content-rich
+        5. Provide insights that deepen the questioner's understanding
+        6. Prefer rich markdown formatting
+      
+      # User Message Template
+      user_message:
+        template: |
+          Context: {{.Context}}
 
-        Question: {{.Question}}
-    
-    # Target Character Count
-    target_length: 500
-  
-# Transform Command Settings
+          Question: {{.Question}}
+      
+      # Target Character Count
+      target_length: 500
+      
+      # Argument validation
+      args:
+        min_count: 0
+        max_count: 0
+
+# Transform Control Settings
 transform:
   # Operations map - each key represents an operation name
   operations:
@@ -51,12 +57,13 @@ transform:
       system_message: |
         You are a helpful and detailed assistant specialized in summarizing markdown documents. When summarizing content, please follow these guidelines:
 
-        1. Provide a comprehensive yet concise summary of the main content
-        2. Maintain the key points and important information
-        3. Use clear and organized structure with markdown formatting
-        4. Include main headings and subheadings when relevant
-        5. Preserve important details, examples, and references
-        6. Make the summary easy to read and understand
+        1. Answer in the same language as the question
+        2. Provide a comprehensive yet concise summary of the main content
+        3. Maintain the key points and important information
+        4. Use clear and organized structure with markdown formatting
+        5. Include main headings and subheadings when relevant
+        6. Preserve important details, examples, and references
+        7. Make the summary easy to read and understand
         7. Use appropriate markdown elements (headers, lists, emphasis, etc.)
         8. Keep the summary appropriately long - not too brief, not too verbose
         9. Focus on the most valuable and actionable information
@@ -117,4 +124,3 @@ transform:
       args:
         min_count: 1
         max_count: 1
-

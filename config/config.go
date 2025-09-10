@@ -14,8 +14,9 @@ import (
 // Config represents the structure of the configuration file
 type Config struct {
 	Default   DefaultConfig           `yaml:"default"`
-	Answer    map[string]AnswerConfig `yaml:"answer"`
+	Answer    map[string]AnswerConfig `yaml:"answer"` // Legacy
 	Transform TransformConfig         `yaml:"transform"`
+	Append    AppendConfig            `yaml:"append"`
 	Summarize SummarizeConfig         `yaml:"summarize"` // Legacy
 	Translate TranslateConfig         `yaml:"translate"` // Legacy
 }
@@ -50,6 +51,11 @@ type QualityConfig struct {
 
 // TransformConfig represents the configuration for the transform command
 type TransformConfig struct {
+	Operations map[string]OperationConfig `yaml:"operations"`
+}
+
+// AppendConfig represents the configuration for the append command
+type AppendConfig struct {
 	Operations map[string]OperationConfig `yaml:"operations"`
 }
 
@@ -232,6 +238,30 @@ Please maintain the original markdown formatting and structure while ensuring th
 					Args: ArgsConfig{
 						MinCount: 1,
 						MaxCount: 1,
+					},
+				},
+			},
+		},
+		Append: AppendConfig{
+			Operations: map[string]OperationConfig{
+				"answer": {
+					SystemMessage: `You are a helpful and detailed assistant. When answering questions based on the given context, please follow these guidelines:
+
+1. Answer in the same language as the question
+2. Make full use of the context information
+3. Add examples and explanations when necessary
+4. Ensure answers are appropriately long and content-rich
+5. Provide insights that deepen the questioner's understanding
+6. Prefer rich markdown formatting`,
+					UserMessage: UserMessageTemplate{
+						Template: `Context: {{.Context}}
+
+Question: {{.Question}}`,
+					},
+					TargetLength: 500,
+					Args: ArgsConfig{
+						MinCount: 0,
+						MaxCount: 0,
 					},
 				},
 			},

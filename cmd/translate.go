@@ -48,5 +48,5 @@ func translate(cfg config.Config, args []string, logger *slog.Logger) error {
 	extraArgs := []string{language}
 
 	// Call transform controller directly
-	return controller.Transform(cfg, controller.OperationTranslate, path, extraArgs, logger)
+	return controller.Transform(cfg, "translate", path, extraArgs, logger)
 }

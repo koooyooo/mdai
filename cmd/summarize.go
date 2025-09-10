@@ -44,5 +44,5 @@ func summarize(cfg config.Config, args []string, logger *slog.Logger) error {
 	extraArgs := []string{}
 
 	// Call transform controller directly
-	return controller.Transform(cfg, controller.OperationSummarize, path, extraArgs, logger)
+	return controller.Transform(cfg, "summarize", path, extraArgs, logger)
 }
