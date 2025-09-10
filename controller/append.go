@@ -7,8 +7,12 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"os/signal"
 	"strings"
+	"syscall"
+	"time"
 
+	"github.com/fsnotify/fsnotify"
 	"github.com/koooyooo/mdai/config"
 	"github.com/koooyooo/mdai/util/file"
 	"github.com/openai/openai-go"
@@ -152,4 +156,55 @@ func prepareAppendMessages(cfg config.Config, appendConfig *AppendConfig, conten
 	}
 
 	return sysMsg, userMsg, nil
+}
+
+type WatchConfig struct {
+	FilePath   string
+	Operation  string
+	ExtraArgs  []string
+	DebounceMs int
+}
+
+func WatchAndAppend(cfg config.Config, watchConfig *WatchConfig, logger *slog.Logger) error {
+	watcher, err := fsnotify.NewWatcher()
+	if err != nil {
+		return err
+	}
+	defer watcher.Close()
+
+	err = watcher.Add(watchConfig.FilePath)
+	if err != nil {
+		return err
+	}
+
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
+
+	logger.Info("file watching started", "file", watchConfig.FilePath, "operation", watchConfig.Operation)
+	logger.Info("press Ctrl+C to exit")
+
+	for {
+		select {
+		case event := <-watcher.Events:
+			if event.Op&fsnotify.Write == fsnotify.Write {
+				logger.Info("file changed", "file", event.Name)
+				go func() {
+					time.Sleep(time.Duration(watchConfig.DebounceMs) * time.Millisecond)
+					logger.Info("starting append operation")
+					err := Append(cfg, watchConfig.Operation, watchConfig.FilePath, watchConfig.ExtraArgs, logger)
+					if err != nil {
+						logger.Error("append failed", "error", err)
+					} else {
+						logger.Info("append operation completed")
+					}
+				}()
+			}
+		case err := <-watcher.Errors:
+			logger.Error("watcher error", "error", err)
+		case sig := <-sigChan:
+			logger.Info("received signal to terminate", "signal", sig)
+			logger.Info("exiting...")
+			return nil
+		}
+	}
 }
