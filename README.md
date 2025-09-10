@@ -8,6 +8,8 @@
 AI-powered assistant for **Markdown workflows**.  
 Summarize, translate, and enrich your notes directly in `.md` files — cross-platform, lightweight, and developer-friendly.
 
+[![Go Test and Lint](https://github.com/koooyooo/mdai/actions/workflows/go-test-lint.yml/badge.svg)](https://github.com/koooyooo/mdai/actions/workflows/go-test-lint.yml)
+
 ---
 
 ### ✨ Key Features

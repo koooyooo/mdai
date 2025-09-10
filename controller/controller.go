@@ -109,7 +109,9 @@ func (c *OpenAIController) ControlStreaming(sysMsg, usrMsg string, quality confi
 
 		// it's best to use chunks after handling JustFinished events
 		if len(chunk.Choices) > 0 {
-			completionFunc(chunk)
+			if err := completionFunc(chunk); err != nil {
+				return fmt.Errorf("fail in calling completionFunc: %v", err)
+			}
 		}
 	}
 
